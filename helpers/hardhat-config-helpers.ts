@@ -51,6 +51,8 @@ export const getAlchemyKey = (net: eNetwork) => {
       return process.env.SEPOLIA_ALCHEMY_KEY || ALCHEMY_KEY;
     case eBaseNetwork.base:
       return process.env.BASE_ALCHEMY_KEY || ALCHEMY_KEY;
+    case eSoneiumNetwork.minato:
+      return process.env.MINATO_ALCHEMY_KEY || ALCHEMY_KEY;
     default:
       return ALCHEMY_KEY;
   }
@@ -99,7 +101,9 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eBaseNetwork.base]: `https://base-mainnet.g.alchemy.com/v2/${getAlchemyKey(
     eBaseNetwork.base
   )}`,
-  [eSoneiumNetwork.minato]: `https://rpc.minato.soneium.org`,
+  [eSoneiumNetwork.minato]: `https://soneium-minato.rpc.scs.startale.com?apikey=${getAlchemyKey(
+    eSoneiumNetwork.minato
+  )}`,
   [eSoneiumNetwork.soneium]: `https://sepolia.base.org`,
 };
 
