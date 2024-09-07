@@ -41,8 +41,8 @@ task(`review-supply-caps`, ``)
 
       const reservesToCheck = checkOnlyReserves.length
         ? reserves.filter(([reserveSymbol]) =>
-            checkOnlyReserves.includes(reserveSymbol)
-          )
+          checkOnlyReserves.includes(reserveSymbol)
+        )
         : reserves;
 
       const reserveAssets = poolConfig.ReserveAssets?.[network];
@@ -74,7 +74,7 @@ task(`review-supply-caps`, ``)
           normalizedSymbol
         );
         const expectedSupplyCap =
-          poolConfig.ReservesConfig[normalizedSymbol.toUpperCase()].supplyCap;
+          poolConfig.ReservesConfig[normalizedSymbol].supplyCap;
         const onChainSupplyCap = (
           await dataProvider.getReserveCaps(tokenAddress)
         ).supplyCap.toString();

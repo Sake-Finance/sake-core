@@ -229,8 +229,8 @@ export default {
         network: eSoneiumNetwork.minato,
         chainId: 1946,
         urls: {
-          apiURL: "",
-          browserURL: ""
+          apiURL: "https://explorer-testnet.soneium.org/api",
+          browserURL: "https://explorer-testnet.soneium.org"
         },
       }
     ],

@@ -95,3 +95,19 @@ export const strategyUSDT: IReserveParams = {
   debtCeiling: "500000000",
   borrowableIsolation: true,
 };
+
+export const strategySolvBTC: IReserveParams = {
+  ...strategyWBTC,
+  reserveDecimals: "18",
+};
+
+export const strategySolvBTCBBN: IReserveParams = {
+  ...strategyWBTC,
+  reserveDecimals: "18",
+};
+
+export const strategySolvBTCENA: IReserveParams = {
+  ...strategyWBTC,
+  reserveDecimals: "18",
+};
+

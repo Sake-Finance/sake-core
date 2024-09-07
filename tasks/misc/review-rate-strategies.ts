@@ -48,33 +48,15 @@ task(`review-rate-strategies`, ``)
 
       const reservesToCheck = checkOnlyReserves.length
         ? reserves.filter(([reserveSymbol]) =>
-            checkOnlyReserves.includes(reserveSymbol)
-          )
+          checkOnlyReserves.includes(reserveSymbol)
+        )
         : reserves;
-
-      const normalizedSymbols = Object.keys(poolConfig.ReservesConfig);
 
       for (let index = 0; index < reservesToCheck.length; index++) {
         const { symbol, tokenAddress } = reservesToCheck[index];
 
-        const normalizedSymbol = normalizedSymbols.find((s) =>
-          symbol.toUpperCase().includes(s.toUpperCase())
-        );
-        if (!normalizedSymbol) {
-          console.error(
-            `- Missing address ${tokenAddress} at ReserveAssets configuration.`
-          );
-          exit(3);
-        }
-
-        console.log(
-          "- Checking reserve",
-          symbol,
-          `, normalized symbol`,
-          normalizedSymbol
-        );
         const expectedStrategy: IInterestRateStrategyParams =
-          poolConfig.ReservesConfig[normalizedSymbol.toUpperCase()].strategy;
+          poolConfig.ReservesConfig[symbol].strategy;
         const onChainStrategy = (await hre.ethers.getContractAt(
           "DefaultReserveInterestRateStrategy",
           await dataProvider.getInterestRateStrategyAddress(tokenAddress),
@@ -118,8 +100,7 @@ task(`review-rate-strategies`, ``)
           console.log(
             `- Found ${chalk.red(
               "differences"
-            )} at reserve ${normalizedSymbol} versus expected "${
-              expectedStrategy.name
+            )} at reserve ${symbol} versus expected "${expectedStrategy.name
             }" strategy from configuration`
           );
           console.log(
@@ -159,7 +140,7 @@ task(`review-rate-strategies`, ``)
             );
             console.log(
               "  - Deployed new Reserve Interest Strategy of",
-              normalizedSymbol,
+              symbol,
               "at",
               fixedInterestStrategy.address
             );
@@ -172,7 +153,7 @@ task(`review-rate-strategies`, ``)
               );
               console.log(
                 "  - Updated Reserve Interest Strategy of",
-                normalizedSymbol,
+                symbol,
                 "at",
                 fixedInterestStrategy.address
               );
@@ -181,7 +162,7 @@ task(`review-rate-strategies`, ``)
         } else {
           console.log(
             chalk.green(
-              `  - Reserve ${normalizedSymbol} Interest Rate Strategy matches the expected configuration`
+              `  - Reserve ${symbol} Interest Rate Strategy matches the expected configuration`
             )
           );
           continue;

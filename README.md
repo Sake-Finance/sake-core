@@ -14,8 +14,12 @@ npm run compile
 
 # Prepare your .env based on .env.example
 
+
 # deploy
 HARDHAT_NETWORK=minato npx hardhat deploy --reset      
+
+# verify 
+npx hardhat --network minato etherscan-verify --api-url https://explorer-testnet.soneium.org/api
 
 # verify single contract (Optional)
 npx hardhat verify --network minato 0xD1C1419d19A8FDff2700A085B0062C11A1944F7f "0x44612500AA5D0F54C8ba6F043B4844fB49B3D362"

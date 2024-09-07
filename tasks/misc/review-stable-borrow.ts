@@ -40,8 +40,8 @@ task(`review-stable-borrow`, ``)
 
       const reservesToCheck = checkOnlyReserves.length
         ? reserves.filter(([reserveSymbol]) =>
-            checkOnlyReserves.includes(reserveSymbol)
-          )
+          checkOnlyReserves.includes(reserveSymbol)
+        )
         : reserves;
 
       const reserveAssets = await dataProvider.getAllReservesTokens();
@@ -54,24 +54,8 @@ task(`review-stable-borrow`, ``)
       for (let index = 0; index < reservesToCheck.length; index++) {
         const { symbol, tokenAddress } = reservesToCheck[index];
 
-        const normalizedSymbol = normalizedSymbols.find((s) =>
-          symbol.toUpperCase().includes(s.toUpperCase())
-        );
-        if (!normalizedSymbol) {
-          console.error(
-            `- Missing address ${tokenAddress} at ReserveAssets configuration.`
-          );
-          exit(3);
-        }
-
-        console.log(
-          "- Checking reserve",
-          symbol,
-          `, normalized symbol`,
-          normalizedSymbol
-        );
         const expectedStableRateEnabled =
-          poolConfig.ReservesConfig[normalizedSymbol.toUpperCase()]
+          poolConfig.ReservesConfig[symbol]
             .stableBorrowRateEnabled;
         const onChainStableRateEnabled = (
           await dataProvider.getReserveConfigurationData(tokenAddress)
@@ -82,7 +66,7 @@ task(`review-stable-borrow`, ``)
           if (vvv) {
             console.log(
               "- Found differences of Borrow Stable Rate Enabled for ",
-              normalizedSymbol
+              symbol
             );
             console.log("  - Expected:", expectedStableRateEnabled);
             console.log("  - Current :", onChainStableRateEnabled);
@@ -93,7 +77,7 @@ task(`review-stable-borrow`, ``)
           vvv &&
             console.log(
               "[FIX] Updating the Borrow Stable Rate Enabled for",
-              normalizedSymbol
+              symbol
             );
           await waitForTx(
             await poolConfigurator.setReserveStableRateBorrowing(
@@ -107,7 +91,7 @@ task(`review-stable-borrow`, ``)
           vvv &&
             console.log(
               "[FIX] Set ",
-              normalizedSymbol,
+              symbol,
               "Stable Rate Borrowing to",
               newOnChainStableRateEnabled
             );
@@ -115,7 +99,7 @@ task(`review-stable-borrow`, ``)
           vvv &&
             console.log(
               chalk.green(
-                `  - Reserve ${normalizedSymbol} Borrow Stable Rate follows the expected configuration`
+                `  - Reserve ${symbol} Borrow Stable Rate follows the expected configuration`
               )
             );
           continue;

@@ -80,6 +80,9 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES: { [key: string]: string } = {
   JEUR: parseUnits("1.126", 8).toString(),
   DPI: parseUnits("149", 8).toString(),
   CBETH: parseUnits("4000", 8).toString(),
+  SolvBTC: parseUnits("60000", 18).toString(),
+  'SolvBTC.BBN': parseUnits("60000", 18).toString(),
+  'SolvBTC.ENA': parseUnits("60000", 18).toString(),
 };
 
 export const chainlinkAggregatorProxy: Record<string, string> = {//TODO
@@ -103,8 +106,8 @@ export const chainlinkAggregatorProxy: Record<string, string> = {//TODO
   goerli: "0x60E4B131f0F219c72b0346675283E73888e4AB24",
   [eArbitrumNetwork.goerliNitro]: "0xC09e69E79106861dF5d289dA88349f10e2dc6b5C",
   [eEthereumNetwork.sepolia]: "0x6c60d915c7a646860dba836ffcb7f112b6cfdc76",
-  [eSoneiumNetwork.minato]: "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
-  [eSoneiumNetwork.soneium]: "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
+  [eSoneiumNetwork.minato]: "",
+  [eSoneiumNetwork.soneium]: "",
 };
 
 export const chainlinkEthUsdAggregatorProxy: Record<string, string> = {//TODO
@@ -128,8 +131,8 @@ export const chainlinkEthUsdAggregatorProxy: Record<string, string> = {//TODO
   goerli: "0x60E4B131f0F219c72b0346675283E73888e4AB24",
   [eArbitrumNetwork.goerliNitro]: "0xC09e69E79106861dF5d289dA88349f10e2dc6b5C",
   [eEthereumNetwork.sepolia]: "0x6c60d915c7a646860dba836ffcb7f112b6cfdc76",
-  [eSoneiumNetwork.minato]: "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
-  [eSoneiumNetwork.soneium]: "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
+  [eSoneiumNetwork.minato]: "",
+  [eSoneiumNetwork.soneium]: "",
 };
 
 export const ETHEREUM_SHORT_EXECUTOR =
