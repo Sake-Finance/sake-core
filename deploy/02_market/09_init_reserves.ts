@@ -19,6 +19,10 @@ import {
   POOL_DATA_PROVIDER,
 } from "../../helpers/deploy-ids";
 import { MARKET_NAME } from "../../helpers/env";
+import {
+  getFaucet,
+} from "../../helpers/contract-getters";
+import { waitForTx } from "../../helpers/utilities/tx";
 
 const func: DeployFunction = async function ({
   getNamedAccounts,
@@ -99,6 +103,29 @@ const func: DeployFunction = async function ({
   // Save AToken and Debt tokens artifacts
   const dataProvider = await deployments.get(POOL_DATA_PROVIDER);
   await savePoolTokens(reservesAddresses, dataProvider.address);
+  // Get the deployed Faucet contract
+  const faucetContract = await getFaucet();
+
+  // Get reserve addresses
+  const reserveAssets = await getReserveAddresses(poolConfig, network);
+  const reservesConfig = poolConfig.ReservesConfig;
+  const reserveSymbols = Object.keys(reservesConfig);
+
+  console.log("reserveAssets:")
+  console.log(reserveAssets)
+
+  // Loop through all reserve assets and call setMintable
+  for (const symbol of reserveSymbols) {
+    const assetAddress = reserveAssets[symbol];
+    if (assetAddress) {
+      await waitForTx(
+        await faucetContract.setMintable(assetAddress, true)
+      );
+      console.log(`Set ${symbol} (${assetAddress}) as mintable in Faucet`);
+    } else {
+      console.warn(`Address for ${symbol} not found in reserveAssets`);
+    }
+  }
 
   deployments.log(`[Deployment] Configured all reserves`);
   return true;
