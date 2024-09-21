@@ -116,6 +116,7 @@ export const LIVE_NETWORKS: iParamsPerNetwork<boolean> = { //TODO
   [eFantomNetwork.main]: true,
   [eOptimismNetwork.main]: true,
   [eBaseNetwork.base]: true,
+  // [eSoneiumNetwork.minato]: true,
   // [eSoneiumNetwork.soneium]: true,
 };
 
