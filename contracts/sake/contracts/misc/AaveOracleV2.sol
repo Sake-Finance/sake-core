@@ -154,10 +154,18 @@ contract AaveOracleV2 is IAaveOracleV2 {
         ) {
             return _fallbackOracle.getAssetPrice(asset);
         } else {
-            (, int256 chainLinkPrice, , , ) = chainLinkSource.latestRoundData();
-            (, int256 pythPrice, , , ) = pythSource.latestRoundData();
+            int256 chainLinkPrice = 0;
+            int256 pythPrice = 0;
 
-            // priority: chainlink -> pyth
+            if (address(chainLinkSource) != address(0)) {
+                (, chainLinkPrice, , , ) = chainLinkSource.latestRoundData();
+            }
+
+            if (address(pythSource) != address(0)) {
+                (, pythPrice, , , ) = pythSource.latestRoundData();
+            }
+
+            // priority: chainlink -> pyth -> fallback
             if (chainLinkPrice > 0) {
                 return uint256(chainLinkPrice);
             } else if (pythPrice > 0) {
