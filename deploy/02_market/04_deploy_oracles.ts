@@ -73,6 +73,16 @@ const func: DeployFunction = async function ({
     log: true,
   });
 
+  // Verify the deployed contract
+  try {
+    await hre.run("verify:verify", {
+      address: pythAggregatorDeployment.address,
+      constructorArguments: [],
+    });
+  } catch (error) {
+    console.warn(`Warning: Verification failed for PythAggregatorV3Deployment at ${pythAggregatorDeployment.address}`, error);
+  }
+
   // Get the deployed contract instance
   const pythAggregatorDeploymentContract = await hre.ethers.getContractAt(
     'PythAggregatorV3Deployment',
@@ -96,6 +106,18 @@ const func: DeployFunction = async function ({
     throw new Error('Failed to deploy Pyth aggregators: Empty or undefined aggregators array');
   }
 
+  // Verify each deployed PythAggregatorV3 contract
+  for (const aggregator of pythAggregators) {
+    try {
+      await hre.run("verify:verify", {
+        address: aggregator,
+        constructorArguments: [pythContract, pythFeedIds[pythAggregators.indexOf(aggregator)]],
+      });
+    } catch (error) {
+      console.warn(`Warning: Verification failed for PythAggregatorV3 at ${aggregator}`, error);
+    }
+  }
+
   console.log('Deployed Pyth aggregators:', pythAggregators);
 
   await deploy(ORACLE_ID, {
@@ -110,7 +132,7 @@ const func: DeployFunction = async function ({
       parseUnits("1", OracleQuoteUnit),
     ],
     ...COMMON_DEPLOY_PARAMS,
-    contract: "AaveOracleV2",
+    contract: "AaveOracle",
   });
 
   return true;

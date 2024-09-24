@@ -7,17 +7,17 @@ import {Errors} from "../../../core-v3/contracts/protocol/libraries/helpers/Erro
 import {IACLManager} from "../../../core-v3/contracts/interfaces/IACLManager.sol";
 import {IPoolAddressesProvider} from "../../../core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 import {IPriceOracleGetter} from "../../../core-v3/contracts/interfaces/IPriceOracleGetter.sol";
-import {IAaveOracleV2} from "../interfaces/IAaveOracleV2.sol";
+import {IAaveOracle} from "../interfaces/IAaveOracle.sol";
 
 /**
- * @title AaveOracleV2
+ * @title AaveOracle
  * @author Sake
  * @notice Contract to get asset prices, manage price sources and update the fallback oracle
  * - Use of Chainlink Aggregators as first source of price, Pyth Aggregators as second source of price
  * - If the returned price by a Chainlink aggregator is <= 0, the call is forwarded to a fallback oracle, which is pyth oracle - PythAggregatorV3
- * - V1 -> V2: use AggregatorV3Interface rather then AggregatorInterface, use latestRoundData() rather then latestAnswer()
+ * - compare to original AaveOracle: use AggregatorV3Interface rather then AggregatorInterface, use latestRoundData() rather then latestAnswer()
  */
-contract AaveOracleV2 is IAaveOracleV2 {
+contract AaveOracle is IAaveOracle {
     IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
 
     // Map of asset price chainlink sources (asset => priceSource)
@@ -67,7 +67,7 @@ contract AaveOracleV2 is IAaveOracleV2 {
         emit BaseCurrencySet(baseCurrency, baseCurrencyUnit);
     }
 
-    /// @inheritdoc IAaveOracleV2
+    /// @inheritdoc IAaveOracle
     function setChainlinkAssetSources(
         address[] calldata assets,
         address[] calldata sources
@@ -75,7 +75,7 @@ contract AaveOracleV2 is IAaveOracleV2 {
         _setChainlinkAssetsSources(assets, sources);
     }
 
-    /// @inheritdoc IAaveOracleV2
+    /// @inheritdoc IAaveOracle
     function setPythAssetSources(
         address[] calldata assets,
         address[] calldata sources
@@ -83,7 +83,7 @@ contract AaveOracleV2 is IAaveOracleV2 {
         _setPythAssetsSources(assets, sources);
     }
 
-    /// @inheritdoc IAaveOracleV2
+    /// @inheritdoc IAaveOracle
     function setFallbackOracle(
         address fallbackOracle
     ) external override onlyAssetListingOrPoolAdmins {
@@ -176,7 +176,7 @@ contract AaveOracleV2 is IAaveOracleV2 {
         }
     }
 
-    /// @inheritdoc IAaveOracleV2
+    /// @inheritdoc IAaveOracle
     function getAssetsPrices(
         address[] calldata assets
     ) external view override returns (uint256[] memory) {
@@ -187,21 +187,21 @@ contract AaveOracleV2 is IAaveOracleV2 {
         return prices;
     }
 
-    /// @inheritdoc IAaveOracleV2
+    /// @inheritdoc IAaveOracle
     function getChainlinkSourceOfAsset(
         address asset
     ) external view override returns (address) {
         return address(chainlinkAssetsSources[asset]);
     }
 
-    /// @inheritdoc IAaveOracleV2
+    /// @inheritdoc IAaveOracle
     function getPythSourceOfAsset(
         address asset
     ) external view override returns (address) {
         return address(pythAssetsSources[asset]);
     }
 
-    /// @inheritdoc IAaveOracleV2
+    /// @inheritdoc IAaveOracle
     function getFallbackOracle() external view returns (address) {
         return address(_fallbackOracle);
     }

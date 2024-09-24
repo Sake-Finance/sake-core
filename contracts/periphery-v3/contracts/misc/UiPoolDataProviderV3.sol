@@ -4,7 +4,8 @@ pragma solidity ^0.8.10;
 import {IERC20Detailed} from "../../../core-v3/contracts/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 import {IPoolAddressesProvider} from "../../../core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 import {IPool} from "../../../core-v3/contracts/interfaces/IPool.sol";
-import {IAaveOracle} from "../../../core-v3/contracts/interfaces/IAaveOracle.sol";
+// import {IAaveOracle} from "../../../core-v3/contracts/interfaces/IAaveOracle.sol";
+import {IAaveOracle} from "../../../sake/contracts/misc/AaveOracle.sol";
 import {IAToken} from "../../../core-v3/contracts/interfaces/IAToken.sol";
 import {IVariableDebtToken} from "../../../core-v3/contracts/interfaces/IVariableDebtToken.sol";
 import {IStableDebtToken} from "../../../core-v3/contracts/interfaces/IStableDebtToken.sol";
@@ -94,9 +95,19 @@ contract UiPoolDataProviderV3 is IUiPoolDataProviderV3 {
             reserveData.priceInMarketReferenceCurrency = oracle.getAssetPrice(
                 reserveData.underlyingAsset
             );
-            reserveData.priceOracle = oracle.getSourceOfAsset(
+            // reserveData.priceOracle = oracle.getSourceOfAsset(
+            //     reserveData.underlyingAsset
+            // );
+            address chainlinkSource = oracle.getChainlinkSourceOfAsset(
                 reserveData.underlyingAsset
             );
+            if (chainlinkSource == address(0)) {
+                reserveData.priceOracle = oracle.getPythSourceOfAsset(
+                    reserveData.underlyingAsset
+                );
+            } else {
+                reserveData.priceOracle = chainlinkSource;
+            }
             reserveData.availableLiquidity = IERC20Detailed(
                 reserveData.underlyingAsset
             ).balanceOf(reserveData.aTokenAddress);

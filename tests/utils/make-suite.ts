@@ -15,7 +15,6 @@ import chai from "chai";
 import { PoolAddressesProvider } from "../../typechain";
 import { PoolAddressesProviderRegistry } from "../../typechain";
 import {
-  AaveOracle,
   IERC20,
   StableDebtToken,
   VariableDebtToken,
@@ -23,6 +22,7 @@ import {
   WrappedTokenGateway,
   Faucet,
 } from "../../typechain";
+import { AaveOracle } from "../../typechain/contracts/sake/contracts/misc/AaveOracle"
 import {
   ORACLE_ID,
   POOL_ADDRESSES_PROVIDER_ID,
