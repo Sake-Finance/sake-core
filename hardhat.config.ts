@@ -141,7 +141,7 @@ export default {
     paths: [
       "contracts/core-v3/contracts/protocol/configuration/PoolAddressesProviderRegistry.sol",
       "contracts/core-v3/contracts/protocol/configuration/PoolAddressesProvider.sol",
-      "contracts/core-v3/contracts/misc/AaveOracle.sol",
+      // "contracts/core-v3/contracts/misc/AaveOracle.sol",
       "contracts/core-v3/contracts/protocol/tokenization/AToken.sol",
       "contracts/core-v3/contracts/protocol/tokenization/DelegationAwareAToken.sol",
       "contracts/core-v3/contracts/protocol/tokenization/StableDebtToken.sol",
@@ -198,6 +198,7 @@ export default {
       "contracts/periphery-v3/contracts/treasury/CollectorController.sol",
       "contracts/periphery-v3/contracts/treasury/AaveEcosystemReserveV2.sol",
       "contracts/periphery-v3/contracts/treasury/AaveEcosystemReserveController.sol",
+      "contracts/sake/contracts/misc/AaveOracle.sol",
       "@aave/safety-module/contracts/stake/StakedAave.sol",
       "@aave/safety-module/contracts/stake/StakedAaveV2.sol",
       "@aave/safety-module/contracts/proposals/extend-stkaave-distribution/StakedTokenV2Rev3.sol",

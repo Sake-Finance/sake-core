@@ -9,7 +9,6 @@ import { MintableERC20 } from "../typechain";
 import { deployContract } from "./utilities/tx";
 import { POOL_ADDRESSES_PROVIDER_ID } from "./deploy-ids";
 import {
-  AaveOracle,
   AaveProtocolDataProvider,
   ACLManager,
   AToken,
@@ -23,6 +22,7 @@ import {
   L2Pool,
   L2Encoder,
 } from "../typechain";
+import { AaveOracle } from "../typechain/contracts/sake/contracts/misc/AaveOracle"
 
 import { waitForTx } from "./utilities/tx";
 import {

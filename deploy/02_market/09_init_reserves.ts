@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { V3_CORE_VERSION } from "../../helpers/constants";
+import { V3_CORE_VERSION, ZERO_ADDRESS } from "../../helpers/constants";
 import {
   checkRequiredEnvironment,
   ConfigNames,
@@ -21,8 +21,10 @@ import {
 import { MARKET_NAME } from "../../helpers/env";
 import {
   getFaucet,
+  getAaveProtocolDataProvider,
 } from "../../helpers/contract-getters";
 import { waitForTx } from "../../helpers/utilities/tx";
+import { BigNumber } from "ethers";
 
 const func: DeployFunction = async function ({
   getNamedAccounts,
@@ -115,13 +117,32 @@ const func: DeployFunction = async function ({
   console.log(reserveAssets)
 
   // Loop through all reserve assets and call setMintable
+  const dataProviderInstance = await getAaveProtocolDataProvider();
+
   for (const symbol of reserveSymbols) {
     const assetAddress = reserveAssets[symbol];
+    const decimal: number = Number(reservesConfig[symbol].reserveDecimals);
     if (assetAddress) {
       await waitForTx(
         await faucetContract.setMintable(assetAddress, true)
       );
       console.log(`Set ${symbol} (${assetAddress}) as mintable in Faucet`);
+
+      // Mint half of the maximum mint amount to the aToken contract address
+      const { aTokenAddress, variableDebtTokenAddress, stableDebtTokenAddress } =
+        await dataProviderInstance.getReserveTokensAddresses(assetAddress);
+
+      if (!aTokenAddress || aTokenAddress === ZERO_ADDRESS) {
+        console.warn(`aTokenAddress for ${symbol} is not valid`);
+        continue;
+      }
+
+      const maxMintAmount = (await faucetContract.getMaximumMintAmount()).toNumber();
+      const mintAmount = BigNumber.from(maxMintAmount).mul(BigNumber.from(10).pow(decimal)).div(10);
+      await waitForTx(
+        await faucetContract.mint(assetAddress, aTokenAddress, mintAmount)
+      );
+      console.log(`Minted ${mintAmount.toString()} of ${symbol} to aToken contract`);
     } else {
       console.warn(`Address for ${symbol} not found in reserveAssets`);
     }

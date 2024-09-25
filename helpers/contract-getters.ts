@@ -2,7 +2,6 @@ import { getFirstSigner } from "./utilities/signer";
 import { StakedTokenTransferStrategy } from "./../typechain";
 import { PullRewardsTransferStrategy } from "./../typechain";
 import {
-  AaveOracle,
   ACLManager,
   AToken,
   BorrowLogic,
@@ -37,6 +36,7 @@ import {
   WalletBalanceProvider,
   UiIncentiveDataProviderV3,
 } from "../typechain";
+import { AaveOracle } from "../typechain/contracts/sake/contracts/misc/AaveOracle"
 import { tEthereumAddress } from "./types";
 import {
   POOL_ADDRESSES_PROVIDER_ID,

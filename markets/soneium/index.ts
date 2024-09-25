@@ -34,14 +34,14 @@ export const SoneiumConfig: IAaveConfiguration = {
     },
     ChainlinkAggregator: {
         [eSoneiumNetwork.minato]: { // TODO
-            DAI: "0xD1092a65338d049DB68D7Be6bD89d17a0929945e",
-            USDC: "0xd30e2101a97dcbAeBCBC04F14C3f624E67A35165",
-            WBTC: "0x0FB99723Aee6f420beAD13e6bBB79b7E6F034298",
-            WETH: "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
-            USDT: "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f",
-            SolvBTC: "0x0FB99723Aee6f420beAD13e6bBB79b7E6F034298",
-            "SolvBTC.BBN": "0x0FB99723Aee6f420beAD13e6bBB79b7E6F034298",
-            "SolvBTC.ENA": "0x0FB99723Aee6f420beAD13e6bBB79b7E6F034298",
+            DAI: "0x0000000000000000000000000000000000000000",
+            USDC: "0x87307a6c8f7b66653F7Cd1C8703064D1e369E8B6",
+            WBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
+            WETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807",
+            USDT: "0x0000000000000000000000000000000000000000",
+            SolvBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
+            "SolvBTC.BBN": "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
+            "SolvBTC.ENA": "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
         },
         [eSoneiumNetwork.soneium]: {
             DAI: "",

@@ -15,7 +15,6 @@ import {
 } from "../../helpers/constants";
 import { getContract, waitForTx } from "../../helpers/utilities/tx";
 import {
-  AaveOracle,
   PoolAddressesProvider,
   PriceOracle__factory,
 } from "../../typechain";

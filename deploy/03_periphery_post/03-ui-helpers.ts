@@ -12,9 +12,7 @@ import {
   ConfigNames,
 } from "../../helpers/market-config-helpers";
 import { MARKET_NAME } from "../../helpers/env";
-import {
-  AaveOracle,
-} from "../../typechain";
+import { AaveOracle } from "../../typechain/contracts/sake/contracts/misc/AaveOracle"
 import {
   ORACLE_ID,
 } from "../../helpers/deploy-ids";
@@ -56,7 +54,7 @@ const func: DeployFunction = async function ({
       oracleAddress
     )) as AaveOracle;
 
-    const tmpSource = await aaveOracle.getSourceOfAsset(reserveAssets["WETH"]);
+    const tmpSource = await aaveOracle.getChainlinkSourceOfAsset(reserveAssets["WETH"]);
 
     console.log("tmp Source: " + tmpSource)
 

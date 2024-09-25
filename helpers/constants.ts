@@ -152,6 +152,7 @@ export const POOL_ADMIN: Record<string, string> = {
   [eBaseNetwork.base]: "0xA9F30e6ED4098e9439B2ac8aEA2d3fc26BcEbb45",
   [eBaseNetwork.baseGoerli]: "0xA9F30e6ED4098e9439B2ac8aEA2d3fc26BcEbb45",
   [eEthereumNetwork.tenderly]: ETHEREUM_SHORT_EXECUTOR,
+  [eSoneiumNetwork.minato]: "0xBC0469bE5109D1652D76CCC726f037fD62bd1f30",
 };
 
 export const EMERGENCY_ADMIN: Record<string, string> = {
