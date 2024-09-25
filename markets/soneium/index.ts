@@ -3,12 +3,9 @@ import { ZERO_ADDRESS } from "../../helpers";
 import {
     strategyWETH,
     strategyWBTC,
-    strategyUSDT,
     strategyUSDC,
-    strategyDAI,
     strategySolvBTC,
     strategySolvBTCBBN,
-    strategySolvBTCENA
 } from "./reservesConfigs";
 
 import { CommonsConfig } from "../aave/commons";
@@ -25,45 +22,33 @@ export const SoneiumConfig: IAaveConfiguration = {
     ReservesConfig: {
         WBTC: strategyWBTC,
         WETH: strategyWETH,
-        USDT: strategyUSDT,
         USDC: strategyUSDC,
-        DAI: strategyDAI,
         SolvBTC: strategySolvBTC,
         "SolvBTC.BBN": strategySolvBTCBBN,
-        "SolvBTC.ENA": strategySolvBTCENA
     },
     ChainlinkAggregator: {
         [eSoneiumNetwork.minato]: { // TODO
-            DAI: "0x0000000000000000000000000000000000000000",
             USDC: "0x87307a6c8f7b66653F7Cd1C8703064D1e369E8B6",
             WBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
             WETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807",
-            USDT: "0x0000000000000000000000000000000000000000",
             SolvBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
             "SolvBTC.BBN": "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
-            "SolvBTC.ENA": "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
         },
         [eSoneiumNetwork.soneium]: {
-            DAI: "",
             USDC: "",
             WBTC: "",
             WETH: "",
-            USDT: "",
             SolvBTC: "",
             "SolvBTC.BBN": "",
-            "SolvBTC.ENA": "",
         }
     },
     ReserveAssets: {
         [eSoneiumNetwork.soneium]: {
             WBTC: ZERO_ADDRESS,
             WETH: ZERO_ADDRESS,
-            USDT: ZERO_ADDRESS,
             USDC: ZERO_ADDRESS,
-            DAI: ZERO_ADDRESS,
             SolvBTC: ZERO_ADDRESS,
             "SolvBTC.BBN": ZERO_ADDRESS,
-            "SolvBTC.ENA": ZERO_ADDRESS,
         },
     },
     EModes: {
@@ -73,7 +58,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             liquidationThreshold: "9750",
             liquidationBonus: "10100",
             label: "Stablecoins",
-            assets: ["USDC", "USDT", "DAI"],
+            assets: ["USDC",],
         },
         EthEmode: {
             id: "2",
