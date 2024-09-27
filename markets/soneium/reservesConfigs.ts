@@ -111,3 +111,20 @@ export const strategySolvBTCBBN: IReserveParams = {
 //   reserveDecimals: "18",
 // };
 
+export const strategyASTR: IReserveParams = {
+  strategy: rateStrategyStableTwo,
+  baseLTVAsCollateral: "7000",
+  liquidationThreshold: "7500",
+  liquidationBonus: "11550",
+  liquidationProtocolFee: "1000",
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  flashLoanEnabled: false,
+  reserveDecimals: "18",
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: "1000",
+  supplyCap: "0",
+  borrowCap: "0",
+  debtCeiling: "10000",
+  borrowableIsolation: false,
+};

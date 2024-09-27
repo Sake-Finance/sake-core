@@ -6,6 +6,7 @@ import {
     strategyUSDC,
     strategySolvBTC,
     strategySolvBTCBBN,
+    strategyASTR,
 } from "./reservesConfigs";
 
 import { CommonsConfig } from "../aave/commons";
@@ -25,6 +26,7 @@ export const SoneiumConfig: IAaveConfiguration = {
         USDC: strategyUSDC,
         SolvBTC: strategySolvBTC,
         SolvBTCBBN: strategySolvBTCBBN,
+        ASTR: strategyASTR,
     },
     ChainlinkAggregator: {
         [eSoneiumNetwork.minato]: { // TODO
@@ -33,6 +35,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             WETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807",
             SolvBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
             SolvBTCBBN: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
+            ASTR: "0x1e13086Ca715865e4d89b280e3BB6371dD48DabA",
         },
         [eSoneiumNetwork.soneium]: {
             USDC: "",
@@ -40,6 +43,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             WETH: "",
             SolvBTC: "",
             SolvBTCBBN: "",
+            ASTR: "",
         }
     },
     ReserveAssets: {
@@ -49,6 +53,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             USDC: ZERO_ADDRESS,
             SolvBTC: ZERO_ADDRESS,
             SolvBTCBBN: ZERO_ADDRESS,
+            ASTR: ZERO_ADDRESS,
         },
     },
     EModes: {
