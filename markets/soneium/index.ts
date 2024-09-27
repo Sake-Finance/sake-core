@@ -24,7 +24,7 @@ export const SoneiumConfig: IAaveConfiguration = {
         WETH: strategyWETH,
         USDC: strategyUSDC,
         SolvBTC: strategySolvBTC,
-        "SolvBTC.BBN": strategySolvBTCBBN,
+        SolvBTCBBN: strategySolvBTCBBN,
     },
     ChainlinkAggregator: {
         [eSoneiumNetwork.minato]: { // TODO
@@ -32,14 +32,14 @@ export const SoneiumConfig: IAaveConfiguration = {
             WBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
             WETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807",
             SolvBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
-            "SolvBTC.BBN": "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
+            SolvBTCBBN: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
         },
         [eSoneiumNetwork.soneium]: {
             USDC: "",
             WBTC: "",
             WETH: "",
             SolvBTC: "",
-            "SolvBTC.BBN": "",
+            SolvBTCBBN: "",
         }
     },
     ReserveAssets: {
@@ -48,7 +48,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             WETH: ZERO_ADDRESS,
             USDC: ZERO_ADDRESS,
             SolvBTC: ZERO_ADDRESS,
-            "SolvBTC.BBN": ZERO_ADDRESS,
+            SolvBTCBBN: ZERO_ADDRESS,
         },
     },
     EModes: {
