@@ -25,7 +25,7 @@ export const SoneiumConfig: IAaveConfiguration = {
         WETH: strategyWETH,
         USDC: strategyUSDC,
         SolvBTC: strategySolvBTC,
-        SolvBTCBBN: strategySolvBTCBBN,
+        "SolvBTC.BBN": strategySolvBTCBBN,
         ASTR: strategyASTR,
     },
     ChainlinkAggregator: {
@@ -34,7 +34,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             WBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
             WETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807",
             SolvBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
-            SolvBTCBBN: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
+            "SolvBTC.BBN": "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
             ASTR: "0x1e13086Ca715865e4d89b280e3BB6371dD48DabA",
         },
         [eSoneiumNetwork.soneium]: {
@@ -42,7 +42,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             WBTC: "",
             WETH: "",
             SolvBTC: "",
-            SolvBTCBBN: "",
+            "SolvBTC.BBN": "",
             ASTR: "",
         }
     },
@@ -52,7 +52,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             WETH: ZERO_ADDRESS,
             USDC: ZERO_ADDRESS,
             SolvBTC: ZERO_ADDRESS,
-            SolvBTCBBN: ZERO_ADDRESS,
+            "SolvBTC.BBN": ZERO_ADDRESS,
             ASTR: ZERO_ADDRESS,
         },
     },

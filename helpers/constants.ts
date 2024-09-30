@@ -81,7 +81,8 @@ export const MOCK_CHAINLINK_AGGREGATORS_PRICES: { [key: string]: string } = {
   DPI: parseUnits("149", 8).toString(),
   CBETH: parseUnits("4000", 8).toString(),
   SolvBTC: parseUnits("60000", 18).toString(),
-  'SolvBTCBBN': parseUnits("60000", 18).toString(),
+  "SolvBTC.BBN": parseUnits("60000", 18).toString(),
+  ASTR: parseUnits("0.07", 8).toString(),
 };
 
 export const chainlinkAggregatorProxy: Record<string, string> = {//TODO
