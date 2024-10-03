@@ -128,3 +128,21 @@ export const strategyASTR: IReserveParams = {
   debtCeiling: "10000",
   borrowableIsolation: false,
 };
+
+export const strategySTONE: IReserveParams = {
+  strategy: rateStrategyVolatileOne,
+  baseLTVAsCollateral: "5000",
+  liquidationThreshold: "5500",
+  liquidationBonus: "10100",
+  liquidationProtocolFee: "1000",
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  flashLoanEnabled: false,
+  reserveDecimals: "18",
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: "1000",
+  supplyCap: "0",
+  borrowCap: "0",
+  debtCeiling: "0",
+  borrowableIsolation: false,
+};
