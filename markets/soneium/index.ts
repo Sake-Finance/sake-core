@@ -77,6 +77,13 @@ export const SoneiumConfig: IAaveConfiguration = {
             liquidationBonus: "10250", //This should be lower than the regular WETH strategy but higher than the stablecoin E-mode. 
             label: "ethereum",
             assets: ["WETH", "STONE"],
+        }, BTCEmode: {
+            id: "3",
+            ltv: "9000",
+            liquidationThreshold: "9250", //This should be slightly higher than the ltv.
+            liquidationBonus: "10250", //This should be lower than the regular WETH strategy but higher than the stablecoin E-mode. 
+            label: "bitcoin",
+            assets: ["WBTC", "SolvBTC", "SolvBTC.BBN"],
         }
     },
 };
