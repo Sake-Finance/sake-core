@@ -59,7 +59,9 @@ const func: DeployFunction = async function ({
     "0xc9d8b075a5c69303365ae23633d4e085199bf5c520a3b90fed1322a0342ffc33", // solvBTCBBN
     // "0xc9d8b075a5c69303365ae23633d4e085199bf5c520a3b90fed1322a0342ffc33", // solvBTCENA
     "0x89b814de1eb2afd3d3b498d296fca3a873e644bafb587e84d181a01edd682853", //ASTR
-    "0x4dcc2fb96fb89a802ef9712f6bd2246d3607cf95ca5540cb24490d37003f8c46", //STONE
+    // "0x4dcc2fb96fb89a802ef9712f6bd2246d3607cf95ca5540cb24490d37003f8c46", //STONE
+    "0x9d4294bbcd1174d6f2003ec365831e64cc31d9f6f15a2b85399db8d5000960f6", //STONE(user weth first)
+
   ]
   // Check if pythFeedIds length matches reserveAssets length
   if (pythFeedIds.length !== Object.keys(reserveAssets).length) {

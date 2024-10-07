@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { poolConfiguratorAddress, dataProviderAddress } from "../addressList"
 import { poolConfiguratorABI, aaveProtocolDataProviderABI } from "../abi"
-const assetAddress = "0x58A8D5B5B6D90a3A541413e4E441a093634b067b"; // Replace with the asset address
+const assetAddress = "0x32B8254F669A5Fa56fD4AcfA141eD7243eb767b5"; // Replace with the asset address
 const eModeCategory = 3; // Replace with the desired eMode category ID
 
 async function addAssetToEModeAndVerify() {
@@ -20,7 +20,7 @@ async function addAssetToEModeAndVerify() {
         // Verify the asset's eMode category using AaveProtocolDataProvider
         const eModeConfigured = await dataProvider.getReserveEModeCategory(assetAddress);
 
-        if (eModeConfigured === eModeCategory) {
+        if (eModeConfigured == eModeCategory) {
             console.log(`Verified: Asset ${assetAddress} is now in eMode category ${eModeCategory}`);
         } else {
             console.log(`Verification failed: Asset ${assetAddress} is in eMode category ${eModeConfigured}, expected ${eModeCategory}`);

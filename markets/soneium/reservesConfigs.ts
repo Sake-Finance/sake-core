@@ -125,7 +125,7 @@ export const strategyASTR: IReserveParams = {
   reserveFactor: "1000",
   supplyCap: "0",
   borrowCap: "0",
-  debtCeiling: "10000",
+  debtCeiling: "200000",
   borrowableIsolation: false,
 };
 
