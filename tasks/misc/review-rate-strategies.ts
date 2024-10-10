@@ -55,6 +55,8 @@ task(`review-rate-strategies`, ``)
       for (let index = 0; index < reservesToCheck.length; index++) {
         const { symbol, tokenAddress } = reservesToCheck[index];
 
+        if (symbol == "SONE") continue;
+
         const expectedStrategy: IInterestRateStrategyParams =
           poolConfig.ReservesConfig[symbol].strategy;
         const onChainStrategy = (await hre.ethers.getContractAt(

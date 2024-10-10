@@ -54,6 +54,8 @@ task(`review-supply-caps`, ``)
       for (let index = 0; index < reservesToCheck.length; index++) {
         const { symbol, tokenAddress } = reservesToCheck[index];
 
+        if (symbol == "SONE") continue;
+
         let normalizedSymbol = "";
         Object.values(reserveAssets).forEach((value, index) => {
           if (getAddress(value) === getAddress(tokenAddress)) {

@@ -16,7 +16,7 @@ import {
 import { getContract, waitForTx } from "../../helpers/utilities/tx";
 import {
   PoolAddressesProvider,
-  PriceOracle__factory,
+  AaveOracle__factory,
 } from "../../typechain";
 import { POOL_ADDRESSES_PROVIDER_ID } from "../../helpers/deploy-ids";
 import { getAddress } from "@ethersproject/address";
@@ -49,6 +49,18 @@ const func: DeployFunction = async function ({
 
   // 1. Set price oracle
   const configPriceOracle = (await deployments.get(ORACLE_ID)).address;
+
+  // OPEN IT WHEN ADD NEW ASSET
+  // const SONE = "0x526c528B914402a27bF15A5E26571d3f9f7DcC5b";
+  // const soneOracle = "0x43105567c05596b5A3bf34479F88c07a694AeB72";
+  // const oracleInstance = AaveOracle__factory.connect(
+  //   configPriceOracle,
+  //   await hre.ethers.getSigner(deployer)
+  // );
+  // await waitForTx(
+  //   await oracleInstance.setChainlinkAssetSources([SONE], [soneOracle])
+  // );
+
   const statePriceOracle = await addressesProviderInstance.getPriceOracle();
   if (getAddress(configPriceOracle) === getAddress(statePriceOracle)) {
     console.log("[addresses-provider] Price oracle already set. Skipping tx.");

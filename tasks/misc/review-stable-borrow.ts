@@ -54,6 +54,8 @@ task(`review-stable-borrow`, ``)
       for (let index = 0; index < reservesToCheck.length; index++) {
         const { symbol, tokenAddress } = reservesToCheck[index];
 
+        if (symbol == "SONE") continue;
+
         const expectedStableRateEnabled =
           poolConfig.ReservesConfig[symbol]
             .stableBorrowRateEnabled;
