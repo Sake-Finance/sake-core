@@ -87,6 +87,8 @@ const func: DeployFunction = async function ({
     return;
   }
 
+  // OPEN IT WHEN ADD REAL TESTNET ASSET
+  // reservesAddresses["USDC.e"] = "0xE9A198d38483aD727ABC8b0B1e16B2d338CF0391"
 
   await initReservesByHelper(
     ReservesConfig,
@@ -120,11 +122,14 @@ const func: DeployFunction = async function ({
   // Loop through all reserve assets and call setMintable
   const dataProviderInstance = await getAaveProtocolDataProvider();
 
+  // OPEN IT WHEN ADD REAL TESTNET ASSET
+  // await faucetContract.addAsset("0xE9A198d38483aD727ABC8b0B1e16B2d338CF0391")
+
   // COMMENT IT WHEN ADD REAL TESTNET ASSET
   for (const symbol of reserveSymbols) {
 
     // Deal with the real work testnet token!!!
-    if (["WETH", "ASTR"].includes(symbol)) {
+    if (["WETH", "ASTR", "USDC.e"].includes(symbol)) {
       console.log("no need to setup in faucet for asset " + symbol)
       continue
     }

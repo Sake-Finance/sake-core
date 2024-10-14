@@ -258,6 +258,7 @@ export const getPoolLibraries = async (): Promise<Libraries> => {
 export const getTestnetReserveAddressFromSymbol = async (symbol: string) => {
   if (symbol == "WETH") return "0x4200000000000000000000000000000000000006"
   if (symbol == "ASTR") return "0x26e6f7c7047252DdE3dcBF26AA492e6a264Db655"
+  if (symbol == "USDC.e") return "0xE9A198d38483aD727ABC8b0B1e16B2d338CF0391"
   const testnetReserve = await hre.deployments.get(
     `${symbol}${TESTNET_TOKEN_PREFIX}`
   );

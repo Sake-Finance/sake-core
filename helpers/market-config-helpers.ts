@@ -216,6 +216,7 @@ export const getReserveAddresses = async (
   // handle some token which exist in real testnet
   result["WETH"] = "0x4200000000000000000000000000000000000006";
   result["ASTR"] = "0x26e6f7c7047252DdE3dcBF26AA492e6a264Db655";
+  result["USDC.e"] = "0xE9A198d38483aD727ABC8b0B1e16B2d338CF0391"
 
   return result
 };

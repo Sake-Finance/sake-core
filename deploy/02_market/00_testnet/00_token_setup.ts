@@ -78,7 +78,7 @@ const func: DeployFunction = async function ({
     }
 
     // Deal with the real work testnet token!!!
-    if (["WETH", "ASTR"].includes(symbol)) {
+    if (["WETH", "ASTR", "USDC.e"].includes(symbol)) {
       console.log("support " + symbol + " for real tesnet token, so skip to mint the ERC20 mintable token")
     }
     else if (symbol == poolConfig.WrappedNativeTokenSymbol) {

@@ -52,9 +52,22 @@ const func: DeployFunction = async function ({
     // Setup faucet
     const faucetContract = await getFaucet();
 
-    // Add assets
-    await waitForTx(await faucetContract.addAsset('0x4200000000000000000000000000000000000006')); // WETH
-    await waitForTx(await faucetContract.addAsset('0x26e6f7c7047252DdE3dcBF26AA492e6a264Db655')); // ASTR
+    const assetsToAdd = [
+      '0x4200000000000000000000000000000000000006', // WETH
+      '0x26e6f7c7047252DdE3dcBF26AA492e6a264Db655', // ASTR
+      '0xE9A198d38483aD727ABC8b0B1e16B2d338CF0391', // USDC.e
+    ];
+
+    for (const asset of assetsToAdd) {
+      const isListed = await faucetContract.isAssetListed(asset);
+      if (!isListed) {
+        console.log(`Adding asset ${asset} to the faucet...`);
+        await waitForTx(await faucetContract.addAsset(asset));
+      } else {
+        console.log(`Asset ${asset} is already listed in the faucet. Skipping...`);
+      }
+    }
+
     console.log('- Added assets to faucet');
 
     // Set cooldown period to 3600 seconds (1 hour)

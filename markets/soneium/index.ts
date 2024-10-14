@@ -24,7 +24,7 @@ export const SoneiumConfig: IAaveConfiguration = {
     ReservesConfig: {
         WBTC: strategyWBTC,
         WETH: strategyWETH,
-        USDC: strategyUSDC,
+        "USDC.e": strategyUSDC,
         SolvBTC: strategySolvBTC,
         "SolvBTC.BBN": strategySolvBTCBBN,
         ASTR: strategyASTR,
@@ -32,7 +32,7 @@ export const SoneiumConfig: IAaveConfiguration = {
     },
     ChainlinkAggregator: {
         [eSoneiumNetwork.minato]: {
-            USDC: "0x87307a6c8f7b66653F7Cd1C8703064D1e369E8B6",
+            "USDC.e": "0x87307a6c8f7b66653F7Cd1C8703064D1e369E8B6",
             WBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
             WETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807",
             SolvBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
@@ -41,7 +41,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             STONE: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807", //TODO
         },
         [eSoneiumNetwork.soneium]: {
-            USDC: "0x87307a6c8f7b66653F7Cd1C8703064D1e369E8B6",
+            "USDC.e": "0x87307a6c8f7b66653F7Cd1C8703064D1e369E8B6",
             WBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
             WETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807",
             SolvBTC: "0x7B783a093eE5Fe07E49b5bd913a1b4AD1e90B23F",
@@ -54,7 +54,7 @@ export const SoneiumConfig: IAaveConfiguration = {
         [eSoneiumNetwork.minato]: {
             WBTC: ZERO_ADDRESS,
             WETH: "0x4200000000000000000000000000000000000006",
-            USDC: ZERO_ADDRESS,
+            "USDC.e": ZERO_ADDRESS,
             SolvBTC: ZERO_ADDRESS,
             "SolvBTC.BBN": ZERO_ADDRESS,
             ASTR: "0x26e6f7c7047252DdE3dcBF26AA492e6a264Db655",
@@ -63,7 +63,7 @@ export const SoneiumConfig: IAaveConfiguration = {
         [eSoneiumNetwork.soneium]: {
             WBTC: ZERO_ADDRESS,
             WETH: ZERO_ADDRESS,
-            USDC: ZERO_ADDRESS,
+            "USDC.e": ZERO_ADDRESS,
             SolvBTC: ZERO_ADDRESS,
             "SolvBTC.BBN": ZERO_ADDRESS,
             ASTR: ZERO_ADDRESS,
@@ -77,7 +77,7 @@ export const SoneiumConfig: IAaveConfiguration = {
             liquidationThreshold: "9750",
             liquidationBonus: "10100",
             label: "Stablecoins",
-            assets: ["USDC",],
+            assets: ["USDC.e",],
         },
         EthEmode: {
             id: "2",
