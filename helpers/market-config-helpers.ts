@@ -202,11 +202,22 @@ export const getReserveAddresses = async (
       key.includes(TESTNET_TOKEN_PREFIX) &&
       reservesKeys.includes(key.replace(TESTNET_TOKEN_PREFIX, ""))
   );
-  return testnetTokenKeys.reduce<ITokenAddress>((acc, key) => {
+  // return testnetTokenKeys.reduce<ITokenAddress>((acc, key) => {
+  //   const symbol = key.replace(TESTNET_TOKEN_PREFIX, "");
+  //   acc[symbol] = allDeployments[key].address;
+  //   return acc;
+  // }, {});
+  let result = testnetTokenKeys.reduce<ITokenAddress>((acc, key) => {
     const symbol = key.replace(TESTNET_TOKEN_PREFIX, "");
     acc[symbol] = allDeployments[key].address;
     return acc;
   }, {});
+
+  // handle some token which exist in real testnet
+  result["WETH"] = "0x4200000000000000000000000000000000000006";
+  result["ASTR"] = "0x26e6f7c7047252DdE3dcBF26AA492e6a264Db655";
+
+  return result
 };
 
 export const getSubTokensByPrefix = async (

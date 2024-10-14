@@ -87,6 +87,7 @@ const func: DeployFunction = async function ({
     return;
   }
 
+
   await initReservesByHelper(
     ReservesConfig,
     reservesAddresses,
@@ -119,7 +120,15 @@ const func: DeployFunction = async function ({
   // Loop through all reserve assets and call setMintable
   const dataProviderInstance = await getAaveProtocolDataProvider();
 
+  // COMMENT IT WHEN ADD REAL TESTNET ASSET
   for (const symbol of reserveSymbols) {
+
+    // Deal with the real work testnet token!!!
+    if (["WETH", "ASTR"].includes(symbol)) {
+      console.log("no need to setup in faucet for asset " + symbol)
+      continue
+    }
+
     const assetAddress = reserveAssets[symbol];
     const decimal: number = Number(reservesConfig[symbol].reserveDecimals);
     if (assetAddress) {
@@ -137,12 +146,12 @@ const func: DeployFunction = async function ({
         continue;
       }
 
-      const maxMintAmount = (await faucetContract.getMaximumMintAmount()).toNumber();
-      const mintAmount = BigNumber.from(maxMintAmount).mul(BigNumber.from(10).pow(decimal)).div(10);
-      await waitForTx(
-        await faucetContract.mint(assetAddress, aTokenAddress, mintAmount)
-      );
-      console.log(`Minted ${mintAmount.toString()} of ${symbol} to aToken contract`);
+      // const maxMintAmount = (await faucetContract.getMaximumMintAmount()).toNumber();
+      // const mintAmount = BigNumber.from(maxMintAmount).mul(BigNumber.from(10).pow(decimal)).div(10);
+      // await waitForTx(
+      //   await faucetContract.mint(assetAddress, aTokenAddress, mintAmount)
+      // );
+      // console.log(`Minted ${mintAmount.toString()} of ${symbol} to aToken contract`);
     } else {
       console.warn(`Address for ${symbol} not found in reserveAssets`);
     }
