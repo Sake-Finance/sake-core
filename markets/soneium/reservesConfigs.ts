@@ -146,3 +146,39 @@ export const strategySTONE: IReserveParams = {
   debtCeiling: "0",
   borrowableIsolation: false,
 };
+
+export const strategynsASTR: IReserveParams = {
+  strategy: rateStrategyStableTwo,
+  baseLTVAsCollateral: "6300",
+  liquidationThreshold: "6800",
+  liquidationBonus: "11550",
+  liquidationProtocolFee: "1000",
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  flashLoanEnabled: false,
+  reserveDecimals: "18",
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: "1000",
+  supplyCap: "0",
+  borrowCap: "0",
+  debtCeiling: "0",
+  borrowableIsolation: false,
+};
+
+export const strategywstETH: IReserveParams = {
+  strategy: rateStrategyVolatileOne,
+  baseLTVAsCollateral: "6500",
+  liquidationThreshold: "6700",
+  liquidationBonus: "11550",
+  liquidationProtocolFee: "1000",
+  borrowingEnabled: true,
+  stableBorrowRateEnabled: false,
+  flashLoanEnabled: true,
+  reserveDecimals: "18",
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: "1000",
+  supplyCap: "0",
+  borrowCap: "0",
+  debtCeiling: "0",
+  borrowableIsolation: false,
+}

@@ -27,10 +27,11 @@
 // Files that need to be updated:
 
 // 1. deploy/
+// - 00_token_setup => skip mint testneterc20
 // - 01b (add return)
 // - 04 add pyth price feed
 // - 05, open "OPEN IT WHEN ADD NEW ASSET"
-// - 09, update reservesAddresses, update for loop, comment for loop, open faucet addAsset
+// - 09, update reservesAddresses, open faucet addAsset, update for loop, comment for loop
 
 // 2. helpers/
 // - constants.ts
@@ -50,5 +51,4 @@
 // Update the deployments/
 
 // Update:
-// - 00_token_setup => skip mint testneterc20
 // - 01-after-deploy => addAsset in faucet

@@ -128,8 +128,8 @@ const func: DeployFunction = async function ({
   // COMMENT IT WHEN ADD REAL TESTNET ASSET
   for (const symbol of reserveSymbols) {
 
-    // Deal with the real work testnet token!!!
-    if (["WETH", "ASTR", "USDC.e"].includes(symbol)) {
+    // DEAL WITH THE REAL WORK TESTNET TOKEN
+    if (["WETH", "ASTR", "USDC.e", "nsASTR", "wstETH"].includes(symbol)) {
       console.log("no need to setup in faucet for asset " + symbol)
       continue
     }
@@ -152,7 +152,8 @@ const func: DeployFunction = async function ({
       }
 
       // const maxMintAmount = (await faucetContract.getMaximumMintAmount()).toNumber();
-      // const mintAmount = BigNumber.from(maxMintAmount).mul(BigNumber.from(10).pow(decimal)).div(10);
+      // const idealMintAmount = 1000;
+      // const mintAmount = BigNumber.from(idealMintAmount).mul(BigNumber.from(10).pow(decimal));
       // await waitForTx(
       //   await faucetContract.mint(assetAddress, aTokenAddress, mintAmount)
       // );
