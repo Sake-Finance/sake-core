@@ -72,9 +72,9 @@ const func: DeployFunction = async function ({
 
     console.log('- Added assets to faucet');
 
-    // Set cooldown period to 3600 seconds (1 hour)
-    await waitForTx(await faucetContract.setCooldownPeriod(3600));
-    console.log('- Set cooldown period to 3600 seconds');
+    // Set cooldown period to 86400 seconds (1 day)
+    await waitForTx(await faucetContract.setCooldownPeriod(86400));
+    console.log('- Set cooldown period to 86400 seconds (1 day)');
 
     // Set limit decimal to 1
     await waitForTx(await faucetContract.setLimitDecimal(1));
