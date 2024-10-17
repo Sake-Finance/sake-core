@@ -265,38 +265,38 @@ export const getChainlinkOracles = async (
   network: eNetwork
 ) => {
   const isLive = hre.config.networks[network].live;
-  if (isLive) {
-    console.log("[NOTICE] Using ChainlinkAggregator from configuration file");
+  // if (isLive) {
+  console.log("[NOTICE] Using ChainlinkAggregator from configuration file");
 
-    return (
-      getParamPerNetwork<ITokenAddress>(
-        poolConfig.ChainlinkAggregator,
-        network
-      ) || {}
-    );
-  }
-  console.log(
-    "[WARNING] Using deployed Mock Price Aggregators instead of ChainlinkAggregator from configuration file"
+  return (
+    getParamPerNetwork<ITokenAddress>(
+      poolConfig.ChainlinkAggregator,
+      network
+    ) || {}
   );
-  let rewardKeys: string[] = [];
+  // }
+  // console.log(
+  //   "[WARNING] Using deployed Mock Price Aggregators instead of ChainlinkAggregator from configuration file"
+  // );
+  // let rewardKeys: string[] = [];
 
-  if (isIncentivesEnabled(poolConfig)) {
-    rewardKeys = await getSymbolsByPrefix(TESTNET_REWARD_TOKEN_PREFIX);
-  }
+  // if (isIncentivesEnabled(poolConfig)) {
+  //   rewardKeys = await getSymbolsByPrefix(TESTNET_REWARD_TOKEN_PREFIX);
+  // }
 
-  const reservesKeys = Object.keys(poolConfig.ReservesConfig);
-  const allDeployments = await hre.deployments.all();
-  const testnetKeys = Object.keys(allDeployments).filter(
-    (key) =>
-      key.includes(TESTNET_PRICE_AGGR_PREFIX) &&
-      (reservesKeys.includes(key.replace(TESTNET_PRICE_AGGR_PREFIX, "")) ||
-        rewardKeys.includes(key.replace(TESTNET_PRICE_AGGR_PREFIX, "")))
-  );
-  return testnetKeys.reduce<ITokenAddress>((acc, key) => {
-    const symbol = key.replace(TESTNET_PRICE_AGGR_PREFIX, "");
-    acc[symbol] = allDeployments[key].address;
-    return acc;
-  }, {});
+  // const reservesKeys = Object.keys(poolConfig.ReservesConfig);
+  // const allDeployments = await hre.deployments.all();
+  // const testnetKeys = Object.keys(allDeployments).filter(
+  //   (key) =>
+  //     key.includes(TESTNET_PRICE_AGGR_PREFIX) &&
+  //     (reservesKeys.includes(key.replace(TESTNET_PRICE_AGGR_PREFIX, "")) ||
+  //       rewardKeys.includes(key.replace(TESTNET_PRICE_AGGR_PREFIX, "")))
+  // );
+  // return testnetKeys.reduce<ITokenAddress>((acc, key) => {
+  //   const symbol = key.replace(TESTNET_PRICE_AGGR_PREFIX, "");
+  //   acc[symbol] = allDeployments[key].address;
+  //   return acc;
+  // }, {});
 };
 
 export const getTreasuryAddress = async (
