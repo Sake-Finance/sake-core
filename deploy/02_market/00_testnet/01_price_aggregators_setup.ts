@@ -34,6 +34,8 @@ const func: DeployFunction = async function ({
     process.env.FORK ? process.env.FORK : hre.network.name
   ) as eNetwork;
 
+  return; // no need price aggregaor anymore, since used pyth and chainlink
+
   if (isProductionMarket(poolConfig)) {
     console.log("[NOTICE] Skipping deployment of testnet price aggregators");
     return;

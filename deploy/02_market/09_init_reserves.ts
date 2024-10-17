@@ -87,6 +87,9 @@ const func: DeployFunction = async function ({
     return;
   }
 
+  // OPEN IT WHEN ADD REAL TESTNET ASSET
+  // reservesAddresses["USDC.e"] = "0xE9A198d38483aD727ABC8b0B1e16B2d338CF0391"
+
   await initReservesByHelper(
     ReservesConfig,
     reservesAddresses,
@@ -119,7 +122,18 @@ const func: DeployFunction = async function ({
   // Loop through all reserve assets and call setMintable
   const dataProviderInstance = await getAaveProtocolDataProvider();
 
+  // OPEN IT WHEN ADD REAL TESTNET ASSET
+  // await faucetContract.addAsset("0xE9A198d38483aD727ABC8b0B1e16B2d338CF0391")
+
+  // COMMENT IT WHEN ADD REAL TESTNET ASSET
   for (const symbol of reserveSymbols) {
+
+    // DEAL WITH THE REAL WORK TESTNET TOKEN
+    if (["WETH", "ASTR", "USDC.e", "nsASTR", "wstETH"].includes(symbol)) {
+      console.log("no need to setup in faucet for asset " + symbol)
+      continue
+    }
+
     const assetAddress = reserveAssets[symbol];
     const decimal: number = Number(reservesConfig[symbol].reserveDecimals);
     if (assetAddress) {
@@ -137,12 +151,13 @@ const func: DeployFunction = async function ({
         continue;
       }
 
-      const maxMintAmount = (await faucetContract.getMaximumMintAmount()).toNumber();
-      const mintAmount = BigNumber.from(maxMintAmount).mul(BigNumber.from(10).pow(decimal)).div(10);
-      await waitForTx(
-        await faucetContract.mint(assetAddress, aTokenAddress, mintAmount)
-      );
-      console.log(`Minted ${mintAmount.toString()} of ${symbol} to aToken contract`);
+      // const maxMintAmount = (await faucetContract.getMaximumMintAmount()).toNumber();
+      // const idealMintAmount = 1000;
+      // const mintAmount = BigNumber.from(idealMintAmount).mul(BigNumber.from(10).pow(decimal));
+      // await waitForTx(
+      //   await faucetContract.mint(assetAddress, aTokenAddress, mintAmount)
+      // );
+      // console.log(`Minted ${mintAmount.toString()} of ${symbol} to aToken contract`);
     } else {
       console.warn(`Address for ${symbol} not found in reserveAssets`);
     }
