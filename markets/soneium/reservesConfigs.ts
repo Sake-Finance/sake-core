@@ -182,3 +182,5 @@ export const strategywstETH: IReserveParams = {
   debtCeiling: "0",
   borrowableIsolation: false,
 }
+
+export const strategyvASTR: IReserveParams = strategynsASTR;

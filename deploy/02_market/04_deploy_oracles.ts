@@ -60,6 +60,7 @@ const func: DeployFunction = async function ({
     "0x9d4294bbcd1174d6f2003ec365831e64cc31d9f6f15a2b85399db8d5000960f6", //STONE(use weth first)
     "0x89b814de1eb2afd3d3b498d296fca3a873e644bafb587e84d181a01edd682853", // nsASTR
     "0x9d4294bbcd1174d6f2003ec365831e64cc31d9f6f15a2b85399db8d5000960f6", // wstETH
+    "0x89b814de1eb2afd3d3b498d296fca3a873e644bafb587e84d181a01edd682853", // vASTR
   ]
   // Check if pythFeedIds length matches reserveAssets length
   if (pythFeedIds.length !== Object.keys(reserveAssets).length) {

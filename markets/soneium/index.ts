@@ -10,6 +10,7 @@ import {
     strategySTONE,
     strategynsASTR,
     strategywstETH,
+    strategyvASTR,
 } from "./reservesConfigs";
 
 import { CommonsConfig } from "../aave/commons";
@@ -32,7 +33,8 @@ export const SoneiumConfig: IAaveConfiguration = {
         ASTR: strategyASTR,
         STONE: strategySTONE,
         nsASTR: strategynsASTR,
-        wstETH: strategywstETH
+        wstETH: strategywstETH,
+        vASTR: strategyvASTR,
     },
     ChainlinkAggregator: {
         [eSoneiumNetwork.minato]: {
@@ -44,7 +46,8 @@ export const SoneiumConfig: IAaveConfiguration = {
             ASTR: "0x1e13086Ca715865e4d89b280e3BB6371dD48DabA",
             STONE: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807", //TODO
             nsASTR: "0x1e13086Ca715865e4d89b280e3BB6371dD48DabA",
-            wstETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807"
+            wstETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807",
+            vASTR: "0x1e13086Ca715865e4d89b280e3BB6371dD48DabA"
         },
         [eSoneiumNetwork.soneium]: {
             "USDC.e": "0x87307a6c8f7b66653F7Cd1C8703064D1e369E8B6",
@@ -55,7 +58,8 @@ export const SoneiumConfig: IAaveConfiguration = {
             ASTR: "0x1e13086Ca715865e4d89b280e3BB6371dD48DabA",
             STONE: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807", //TODO
             nsASTR: "0x1e13086Ca715865e4d89b280e3BB6371dD48DabA",
-            wstETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807"
+            wstETH: "0xCA50964d2Cf6366456a607E5e1DBCE381A8BA807",
+            vASTR: "0x1e13086Ca715865e4d89b280e3BB6371dD48DabA"
         },
     },
     ReserveAssets: {
@@ -68,7 +72,8 @@ export const SoneiumConfig: IAaveConfiguration = {
             ASTR: "0x26e6f7c7047252DdE3dcBF26AA492e6a264Db655",
             STONE: ZERO_ADDRESS,
             nsASTR: "0xe14b432b82bA85d36c0B1F5DcD43605a1FD329CC",
-            wstETH: "0x5717D6A621aA104b0b4cAd32BFe6AD3b659f269E"
+            wstETH: "0x5717D6A621aA104b0b4cAd32BFe6AD3b659f269E",
+            vASTR: ZERO_ADDRESS,
         },
         [eSoneiumNetwork.soneium]: {
             WBTC: ZERO_ADDRESS,
@@ -79,7 +84,8 @@ export const SoneiumConfig: IAaveConfiguration = {
             ASTR: ZERO_ADDRESS,
             STONE: ZERO_ADDRESS,
             nsASTR: ZERO_ADDRESS,
-            wstETH: ZERO_ADDRESS
+            wstETH: ZERO_ADDRESS,
+            vASTR: ZERO_ADDRESS,
         },
     },
     EModes: {
