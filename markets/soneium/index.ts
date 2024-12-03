@@ -111,6 +111,13 @@ export const SoneiumConfig: IAaveConfiguration = {
             liquidationBonus: "10250", //This should be lower than the regular WETH strategy but higher than the stablecoin E-mode. 
             label: "Bitcoin",
             assets: ["WBTC", "SolvBTC", "SolvBTC.BBN"],
+        }, ASTREmode: {
+            id: "4",
+            ltv: "8000",
+            liquidationThreshold: "8250",
+            liquidationBonus: "10250",
+            label: "ASTRcoins",
+            assets: ["ASTR", "nsASTR", "vASTR"]
         }
     },
 };
