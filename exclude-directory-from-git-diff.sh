@@ -1,6 +1,6 @@
   #!/bin/bash
   #tasks/misc/view-protocol-roles.ts: not sure why show in diff, just exclude it
-git diff --name-only Sake aave-v3-deploy/main -- \
+git diff --name-only main aave-v3-deploy/main -- \
   ':!.gitignore' \
   ':!.github' \
   ':!.npmrc' \

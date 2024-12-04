@@ -25,7 +25,34 @@ npx hardhat --network minato etherscan-verify --api-url https://soneium-minato.b
 npx hardhat verify --network minato 0xD1C1419d19A8FDff2700A085B0062C11A1944F7f "0x44612500AA5D0F54C8ba6F043B4844fB49B3D362"
 ```
 
-### Compare to the official aave deploy repository
+### Comparing Differences with Aave Contracts
+The Sake contracts/ directory contains three folders: `core-v3`, `periphery-v3`, and `sake`. Here's what each contains:
+
+- core-v3: Based on [aave-v3-core](https://github.com/aave/aave-v3-core/tree/master)
+- periphery-v3: Based on [aave-v3-periphery](https://github.com/aave/aave-v3-periphery)
+- sake: Our custom modifications
+
+1. Core-v3 Comparison
+```CMD
+# Clone the Aave V3 Core Repository first
+
+git remote add aave-v3-core PATH_TO_AAVE_V3_CORE_CLONE
+
+git fetch aave-v3-core
+
+bash get-core-diff.sh
+
+# Check core_contracts_diff_output.txt, should list the diff files name
+
+# Check more detail from repo_diff_output.txt with the specific file
+git diff main:contracts/core-v3/contracts aave-v3-core/master:contracts -- 'FILE-PATH' > core_file_diff_output.txt
+```
+
+2. Periphery-v3 Comparison
+
+Note: We skip this comparison as our dependency import method differs from aave-v3-periphery. We import files directly from the same folder, while aave-v3-periphery imports from dependencies.
+
+3. Deploy script Comparison
 
 [Aave V3 Deploy Repository](https://github.com/aave/aave-v3-deploy)
 
@@ -46,21 +73,4 @@ git diff Sake aave-v3-deploy/main -- ':helpers/market-config-helpers.ts' > file_
 ```
 
 ### Contract Address 
-[Update Here](https://dev-docs.sakefinance.com/docs/dev-docs/contract-addresses/)
-
-
-### Reminder
-- Only support TestnetMintableERC20 tokens, not the real Base Sepolia tokens. You should approve and mint some TestnetMintableERC20 tokens by faucet contract before using Sake.
-- In the Aave deployment mechanism, it will use "TestnetPriceAggregator" as the oracle for testnet but not ChainLink, which will always return the constant price for the asset (e.g., WETH will always be 4000). Can adjust this if needed.
-- When planning to add a new asset in Sake, you should:
-  - Init the reserve (PoolConfigurator.sol `initReserves()`)
-  - Update the oracle (AaveOracle.sol `setAssetSources()`)
-
-## Q&A
-Q: You mentioned comparing the deployment scripts between Sake and the official Aave V3 deployment repository. Are there any different smart contracts from Aave V3 in Sake, besides the deployment changes?
-
-A: So far, No.
-
-Q: What are the currently supported assets?
-
-A: WBTC / WETH / DAI / USDC / USDT, but all of them are TestnetMintableERC20, not real testnet token. 
+[Check Here](https://dev-docs.sakefinance.com/docs/dev-docs/contract-addresses/)
