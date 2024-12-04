@@ -14,7 +14,6 @@ npm run compile
 
 # Prepare your .env based on .env.example
 
-
 # deploy
 HARDHAT_NETWORK=minato npx hardhat deploy --reset      
 
@@ -44,7 +43,7 @@ bash get-core-diff.sh
 
 # Check core_contracts_diff_output.txt, should list the diff files name
 
-# Check more detail from repo_diff_output.txt with the specific file
+# Check more detail from core_contracts_diff_output.txt with the specific file
 git diff main:contracts/core-v3/contracts aave-v3-core/master:contracts -- 'FILE-PATH' > core_file_diff_output.txt
 ```
 
