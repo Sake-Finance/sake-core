@@ -9,6 +9,7 @@ import {ReserveConfiguration} from '../configuration/ReserveConfiguration.sol';
 import {DataTypes} from '../types/DataTypes.sol';
 import {ConfiguratorInputTypes} from '../types/ConfiguratorInputTypes.sol';
 
+import {IERC20Detailed} from '../../../dependencies/openzeppelin/contracts/IERC20Detailed.sol';
 /**
  * @title ConfiguratorLogic library
  * @author Aave
@@ -51,6 +52,11 @@ library ConfiguratorLogic {
     IPool pool,
     ConfiguratorInputTypes.InitReserveInput calldata input
   ) public {
+    require(
+        IERC20Detailed(input.underlyingAsset).decimals() >= ReserveConfiguration.DEBT_CEILING_DECIMALS,
+        "Invalid underlying asset decimals"
+    );
+
     address aTokenProxyAddress = _initTokenWithProxy(
       input.aTokenImpl,
       abi.encodeWithSelector(
