@@ -7,6 +7,7 @@ import {ITransferStrategyBase} from "../interfaces/ITransferStrategyBase.sol";
 import {TransferStrategyBase} from "./TransferStrategyBase.sol";
 import {GPv2SafeERC20} from "../../../../core-v3/contracts/dependencies/gnosis/contracts/GPv2SafeERC20.sol";
 import {IERC20} from "../../../../core-v3/contracts/dependencies/openzeppelin/contracts/IERC20.sol";
+import {SafeERC20} from "../../treasury/libs/SafeERC20.sol";
 
 /**
  * @title StakedTokenTransferStrategy
@@ -19,6 +20,7 @@ contract StakedTokenTransferStrategy is
     IStakedTokenTransferStrategy
 {
     using GPv2SafeERC20 for IERC20;
+    using SafeERC20 for IERC20;
 
     IStakedToken internal immutable STAKE_CONTRACT;
     address internal immutable UNDERLYING_TOKEN;
@@ -31,8 +33,8 @@ contract StakedTokenTransferStrategy is
         STAKE_CONTRACT = stakeToken;
         UNDERLYING_TOKEN = STAKE_CONTRACT.STAKED_TOKEN();
 
-        IERC20(UNDERLYING_TOKEN).approve(address(STAKE_CONTRACT), 0);
-        IERC20(UNDERLYING_TOKEN).approve(
+        IERC20(UNDERLYING_TOKEN).safeApprove(address(STAKE_CONTRACT), 0);
+        IERC20(UNDERLYING_TOKEN).safeApprove(
             address(STAKE_CONTRACT),
             type(uint256).max
         );
@@ -61,8 +63,8 @@ contract StakedTokenTransferStrategy is
 
     /// @inheritdoc IStakedTokenTransferStrategy
     function renewApproval() external onlyRewardsAdmin {
-        IERC20(UNDERLYING_TOKEN).approve(address(STAKE_CONTRACT), 0);
-        IERC20(UNDERLYING_TOKEN).approve(
+        IERC20(UNDERLYING_TOKEN).safeApprove(address(STAKE_CONTRACT), 0);
+        IERC20(UNDERLYING_TOKEN).safeApprove(
             address(STAKE_CONTRACT),
             type(uint256).max
         );
@@ -70,7 +72,7 @@ contract StakedTokenTransferStrategy is
 
     /// @inheritdoc IStakedTokenTransferStrategy
     function dropApproval() external onlyRewardsAdmin {
-        IERC20(UNDERLYING_TOKEN).approve(address(STAKE_CONTRACT), 0);
+        IERC20(UNDERLYING_TOKEN).safeApprove(address(STAKE_CONTRACT), 0);
     }
 
     /// @inheritdoc IStakedTokenTransferStrategy

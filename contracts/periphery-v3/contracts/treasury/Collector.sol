@@ -4,7 +4,7 @@ pragma solidity ^0.8.10;
 import {VersionedInitializable} from "../../../core-v3/contracts/protocol/libraries/aave-upgradeability/VersionedInitializable.sol";
 import {IERC20} from "../../../core-v3/contracts/dependencies/openzeppelin/contracts/IERC20.sol";
 import {ICollector} from "./interfaces/ICollector.sol";
-
+import {SafeERC20} from "../treasury/libs/SafeERC20.sol";
 /**
  * @title Collector
  * @notice Stores the fees collected by the protocol and allows the fund administrator
@@ -13,6 +13,7 @@ import {ICollector} from "./interfaces/ICollector.sol";
  * @author Aave
  **/
 contract Collector is VersionedInitializable, ICollector {
+    using SafeERC20 for IERC20;
     // Store the current funds administrator address
     address internal _fundsAdmin;
 
@@ -51,7 +52,7 @@ contract Collector is VersionedInitializable, ICollector {
         address recipient,
         uint256 amount
     ) external onlyFundsAdmin {
-        token.approve(recipient, amount);
+        token.safeApprove(recipient, amount);
     }
 
     /// @inheritdoc ICollector
@@ -60,7 +61,7 @@ contract Collector is VersionedInitializable, ICollector {
         address recipient,
         uint256 amount
     ) external onlyFundsAdmin {
-        token.transfer(recipient, amount);
+        token.safeTransfer(recipient, amount);
     }
 
     /// @inheritdoc ICollector
