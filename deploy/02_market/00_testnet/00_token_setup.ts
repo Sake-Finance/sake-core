@@ -77,10 +77,6 @@ const func: DeployFunction = async function ({
       throw `[Deployment] Missing token "${symbol}" at ReservesConfig`;
     }
 
-    // DEAL WITH THE REAL WORK TESTNET TOKEN
-    if (["WETH", "ASTR", "USDC.e", "nsASTR", "wstETH"].includes(symbol)) {
-      console.log("support " + symbol + " for real tesnet token, so skip to mint the ERC20 mintable token")
-    }
     else if (symbol == poolConfig.WrappedNativeTokenSymbol) {
       console.log("Deploy of WETH9 mock");
       await deploy(

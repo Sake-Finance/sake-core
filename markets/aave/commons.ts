@@ -162,7 +162,6 @@ export const CommonsConfig: ICommonConfiguration = {
     [eOptimismNetwork.testnet]: true,
     [eBaseNetwork.base]: true,
     [eBaseNetwork.baseGoerli]: true,
-    [eSoneiumNetwork.minato]: true,
     [eSoneiumNetwork.soneium]: true,
   },
   ParaswapRegistry: {

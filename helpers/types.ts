@@ -47,7 +47,6 @@ export enum eEthereumNetwork {
 }
 
 export enum eSoneiumNetwork {
-  minato = "minato",
   soneium = "soneium"
 }
 
