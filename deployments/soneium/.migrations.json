@@ -1,0 +1,15 @@
+{
+  "PoolAddressesProviderRegistry": 1736157657,
+  "LogicLibraries": 1736157723,
+  "Treasury": 1736157756,
+  "PoolAddressesProvider:soneium:aave-v3-core@1.19.4": 1736157788,
+  "PoolConfigurator": 1736157834,
+  "ACLManager:soneium:aave-v3-core@1.19.4": 1736157866,
+  "Oracles:soneium:aave-v3-core@1.19.4": 1736157891,
+  "InitOracles:soneium:aave-v3-core@1.19.4": 1736157897,
+  "PoolInitalization:soneium:aave-v3-core@1.19.4": 1736157930,
+  "Incentives:soneium:aave-v3-periphery@2.5.2": 1736157975,
+  "TokenImplementations:soneium:aave-v3-core@1.19.4": 1736158029,
+  "ReservesInit:soneium:aave-v3-core@1.19.4": 1736158092,
+  "PeripheryInit:soneium:aave-v3-periphery@2.5.2": 1736158092
+}
