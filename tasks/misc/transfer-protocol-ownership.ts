@@ -68,21 +68,21 @@ task(
 
   const emissionManager = await getEmissionManager();
   const currentOwner = await poolAddressesProvider.owner();
-  const paraswapSwapAdapter = await getOwnableContract(
-    await (
-      await hre.deployments.get("ParaSwapLiquiditySwapAdapter")
-    ).address
-  );
-  const paraswapRepayAdapter = await getOwnableContract(
-    await (
-      await hre.deployments.get("ParaSwapRepayAdapter")
-    ).address
-  );
-  const paraswapWithdrawSwapAdapter = await getOwnableContract(
-    await (
-      await hre.deployments.get("ParaSwapWithdrawSwapAdapter")
-    ).address
-  );
+  // const paraswapSwapAdapter = await getOwnableContract(
+  //   await (
+  //     await hre.deployments.get("ParaSwapLiquiditySwapAdapter")
+  //   ).address
+  // );
+  // const paraswapRepayAdapter = await getOwnableContract(
+  //   await (
+  //     await hre.deployments.get("ParaSwapRepayAdapter")
+  //   ).address
+  // );
+  // const paraswapWithdrawSwapAdapter = await getOwnableContract(
+  //   await (
+  //     await hre.deployments.get("ParaSwapWithdrawSwapAdapter")
+  //   ).address
+  // );
 
   if (currentOwner === desiredAdmin) {
     console.log(
@@ -101,29 +101,29 @@ task(
   }
 
   /** Start of Paraswap Helpers Ownership */
-  const isDeployerAdminParaswapRepayAdapter =
-    (await paraswapRepayAdapter.owner()) == deployer;
+  // const isDeployerAdminParaswapRepayAdapter =
+  //   (await paraswapRepayAdapter.owner()) == deployer;
 
-  if (isDeployerAdminParaswapRepayAdapter) {
-    await paraswapRepayAdapter.transferOwnership(desiredAdmin);
-    console.log("- Transferred ParaswapRepayAdapter ownership");
-  }
+  // if (isDeployerAdminParaswapRepayAdapter) {
+  //   await paraswapRepayAdapter.transferOwnership(desiredAdmin);
+  //   console.log("- Transferred ParaswapRepayAdapter ownership");
+  // }
 
-  const isDeployerAdminParaswapSwapAdapter =
-    (await paraswapSwapAdapter.owner()) == deployer;
+  // const isDeployerAdminParaswapSwapAdapter =
+  //   (await paraswapSwapAdapter.owner()) == deployer;
 
-  if (isDeployerAdminParaswapSwapAdapter) {
-    await paraswapSwapAdapter.transferOwnership(desiredAdmin);
-    console.log("- Transferred ParaswapSwapAdapter ownership");
-  }
+  // if (isDeployerAdminParaswapSwapAdapter) {
+  //   await paraswapSwapAdapter.transferOwnership(desiredAdmin);
+  //   console.log("- Transferred ParaswapSwapAdapter ownership");
+  // }
 
-  const isDeployerAdminParaswapWithdrawSwapAdapter =
-    (await paraswapWithdrawSwapAdapter.owner()) == deployer;
+  // const isDeployerAdminParaswapWithdrawSwapAdapter =
+  //   (await paraswapWithdrawSwapAdapter.owner()) == deployer;
 
-  if (isDeployerAdminParaswapWithdrawSwapAdapter) {
-    await paraswapWithdrawSwapAdapter.transferOwnership(desiredAdmin);
-    console.log("- Transferred ParaswapWithdrawSwapAdapter ownership");
-  }
+  // if (isDeployerAdminParaswapWithdrawSwapAdapter) {
+  //   await paraswapWithdrawSwapAdapter.transferOwnership(desiredAdmin);
+  //   console.log("- Transferred ParaswapWithdrawSwapAdapter ownership");
+  // }
   /** End of Paraswap Helpers Ownership */
 
   /** Start of Emergency Admin transfer */
@@ -263,8 +263,8 @@ task(
       ))
         ? desiredAdmin
         : (await aclManager.hasRole(hre.ethers.constants.HashZero, deployer))
-        ? deployer
-        : "UNKNOWN",
+          ? deployer
+          : "UNKNOWN",
       assert: await aclManager.hasRole(
         hre.ethers.constants.HashZero,
         desiredAdmin
