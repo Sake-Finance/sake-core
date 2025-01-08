@@ -20,20 +20,20 @@ export const SoneiumConfig: IAaveConfiguration = {
     ReservesConfig: {
         WETH: strategyWETH,
         ASTR: strategyASTR,
-        USDC: strategyUSDC,
+        "USDC.e": strategyUSDC,
     },
     ChainlinkAggregator: {
         [eSoneiumNetwork.soneium]: {
             WETH: "0x96b0f252dd2F8aB9C51465EA195226ba5939aa5C",
             ASTR: "0x0000000000000000000000000000000000000000",
-            USDC: "0x0000000000000000000000000000000000000000"
+            "USDC.e": "0x0000000000000000000000000000000000000000"
         },
     },
     ReserveAssets: {
         [eSoneiumNetwork.soneium]: {
             WETH: "0x4200000000000000000000000000000000000006",
             ASTR: "0x2CAE934a1e84F693fbb78CA5ED3B0A6893259441",
-            USDC: "0xbA9986D2381edf1DA03B0B9c1f8b00dc4AacC369"
+            "USDC.e": "0xbA9986D2381edf1DA03B0B9c1f8b00dc4AacC369"
         },
     },
     EModes: {
