@@ -1,3 +1,4 @@
+// remember to add EOA to ALA and reservesSetupHelper to risk admin first!!!
 import { ethers, deployments } from "hardhat";
 import { MARKET_NAME } from "../../../../helpers/env";
 import {
