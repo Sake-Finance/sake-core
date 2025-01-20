@@ -158,7 +158,7 @@ export const getCommonNetworkConfig = (
   blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
   chainId,
   gasPrice: GAS_PRICE_PER_NET[networkName] || undefined,
-  accounts: [process.env.PRIVATE_KEY, process.env.PRIVATE_KEY_ACCOUNT1], // PRIVATE_KEY_ACCOUNT1 should only be used as test user
+  accounts: [process.env.PRIVATE_KEY], // PRIVATE_KEY_ACCOUNT1 should only be used as test user
   live: LIVE_NETWORKS[networkName] || false,
 });
 
