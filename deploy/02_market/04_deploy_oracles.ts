@@ -50,17 +50,9 @@ const func: DeployFunction = async function ({
   );
 
   const pythFeedIds = [
-    "0xc9d8b075a5c69303365ae23633d4e085199bf5c520a3b90fed1322a0342ffc33", // wbtc
-    "0x9d4294bbcd1174d6f2003ec365831e64cc31d9f6f15a2b85399db8d5000960f6", // weth
-    "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a", // usdc
-    "0xc9d8b075a5c69303365ae23633d4e085199bf5c520a3b90fed1322a0342ffc33", // solvBTC
-    "0xc9d8b075a5c69303365ae23633d4e085199bf5c520a3b90fed1322a0342ffc33", // solvBTCBBN
     "0x89b814de1eb2afd3d3b498d296fca3a873e644bafb587e84d181a01edd682853", //ASTR
-    // "0x4dcc2fb96fb89a802ef9712f6bd2246d3607cf95ca5540cb24490d37003f8c46", //STONE
-    "0x9d4294bbcd1174d6f2003ec365831e64cc31d9f6f15a2b85399db8d5000960f6", //STONE(use weth first)
     "0x89b814de1eb2afd3d3b498d296fca3a873e644bafb587e84d181a01edd682853", // nsASTR
-    "0x9d4294bbcd1174d6f2003ec365831e64cc31d9f6f15a2b85399db8d5000960f6", // wstETH
-    "0x89b814de1eb2afd3d3b498d296fca3a873e644bafb587e84d181a01edd682853", // vASTR
+    "0x89b814de1eb2afd3d3b498d296fca3a873e644bafb587e84d181a01edd682853", // WSTASTR
   ]
   // Check if pythFeedIds length matches reserveAssets length
   if (pythFeedIds.length !== Object.keys(reserveAssets).length) {

@@ -54,7 +54,7 @@ const func: DeployFunction = async function ({
       oracleAddress
     )) as AaveOracle;
 
-    const tmpSource = await aaveOracle.getChainlinkSourceOfAsset(reserveAssets["WETH"]);
+    const tmpSource = await aaveOracle.getChainlinkSourceOfAsset(reserveAssets["ASTR"]);
 
     console.log("tmp Source: " + tmpSource)
 

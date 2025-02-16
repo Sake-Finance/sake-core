@@ -214,11 +214,9 @@ export const getReserveAddresses = async (
   }, {});
 
   // handle some token which exist in real testnet
-  result["WETH"] = "0x4200000000000000000000000000000000000006";
   result["ASTR"] = "0x26e6f7c7047252DdE3dcBF26AA492e6a264Db655";
-  result["USDC.e"] = "0xE9A198d38483aD727ABC8b0B1e16B2d338CF0391";
   result["nsASTR"] = "0xe14b432b82bA85d36c0B1F5DcD43605a1FD329CC";
-  result["wstETH"] = "0x5717D6A621aA104b0b4cAd32BFe6AD3b659f269E";
+  result["WSTASTR"] = "0x958B47458BDfbC7c32A0E1Aa3558e28D62726794";
 
   return result
 };

@@ -126,42 +126,42 @@ const func: DeployFunction = async function ({
   // await faucetContract.addAsset("0xE9A198d38483aD727ABC8b0B1e16B2d338CF0391")
 
   // COMMENT IT WHEN ADD REAL TESTNET ASSET
-  for (const symbol of reserveSymbols) {
+  // for (const symbol of reserveSymbols) {
 
-    // DEAL WITH THE REAL WORK TESTNET TOKEN
-    if (["WETH", "ASTR", "USDC.e", "nsASTR", "wstETH"].includes(symbol)) {
-      console.log("no need to setup in faucet for asset " + symbol)
-      continue
-    }
+  //   // DEAL WITH THE REAL WORK TESTNET TOKEN
+  //   if (["WETH", "ASTR", "USDC.e", "nsASTR", "wstETH"].includes(symbol)) {
+  //     console.log("no need to setup in faucet for asset " + symbol)
+  //     continue
+  //   }
 
-    const assetAddress = reserveAssets[symbol];
-    const decimal: number = Number(reservesConfig[symbol].reserveDecimals);
-    if (assetAddress) {
-      await waitForTx(
-        await faucetContract.setMintable(assetAddress, true)
-      );
-      console.log(`Set ${symbol} (${assetAddress}) as mintable in Faucet`);
+  //   const assetAddress = reserveAssets[symbol];
+  //   const decimal: number = Number(reservesConfig[symbol].reserveDecimals);
+  //   if (assetAddress) {
+  //     await waitForTx(
+  //       await faucetContract.setMintable(assetAddress, true)
+  //     );
+  //     console.log(`Set ${symbol} (${assetAddress}) as mintable in Faucet`);
 
-      // Mint half of the maximum mint amount to the aToken contract address
-      const { aTokenAddress, variableDebtTokenAddress, stableDebtTokenAddress } =
-        await dataProviderInstance.getReserveTokensAddresses(assetAddress);
+  //     // Mint half of the maximum mint amount to the aToken contract address
+  //     const { aTokenAddress, variableDebtTokenAddress, stableDebtTokenAddress } =
+  //       await dataProviderInstance.getReserveTokensAddresses(assetAddress);
 
-      if (!aTokenAddress || aTokenAddress === ZERO_ADDRESS) {
-        console.warn(`aTokenAddress for ${symbol} is not valid`);
-        continue;
-      }
+  //     if (!aTokenAddress || aTokenAddress === ZERO_ADDRESS) {
+  //       console.warn(`aTokenAddress for ${symbol} is not valid`);
+  //       continue;
+  //     }
 
-      // const maxMintAmount = (await faucetContract.getMaximumMintAmount()).toNumber();
-      // const idealMintAmount = 1000;
-      // const mintAmount = BigNumber.from(idealMintAmount).mul(BigNumber.from(10).pow(decimal));
-      // await waitForTx(
-      //   await faucetContract.mint(assetAddress, aTokenAddress, mintAmount)
-      // );
-      // console.log(`Minted ${mintAmount.toString()} of ${symbol} to aToken contract`);
-    } else {
-      console.warn(`Address for ${symbol} not found in reserveAssets`);
-    }
-  }
+  //     // const maxMintAmount = (await faucetContract.getMaximumMintAmount()).toNumber();
+  //     // const idealMintAmount = 1000;
+  //     // const mintAmount = BigNumber.from(idealMintAmount).mul(BigNumber.from(10).pow(decimal));
+  //     // await waitForTx(
+  //     //   await faucetContract.mint(assetAddress, aTokenAddress, mintAmount)
+  //     // );
+  //     // console.log(`Minted ${mintAmount.toString()} of ${symbol} to aToken contract`);
+  //   } else {
+  //     console.warn(`Address for ${symbol} not found in reserveAssets`);
+  //   }
+  // }
 
   deployments.log(`[Deployment] Configured all reserves`);
   return true;
