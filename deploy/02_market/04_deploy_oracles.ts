@@ -50,9 +50,8 @@ const func: DeployFunction = async function ({
   );
 
   const pythFeedIds = [
-    "0x9d4294bbcd1174d6f2003ec365831e64cc31d9f6f15a2b85399db8d5000960f6", // weth
     "0x89b814de1eb2afd3d3b498d296fca3a873e644bafb587e84d181a01edd682853", //ASTR
-    "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a", // usdc
+    "0x89b814de1eb2afd3d3b498d296fca3a873e644bafb587e84d181a01edd682853", // nsASTR
   ]
   // Check if pythFeedIds length matches reserveAssets length
   if (pythFeedIds.length !== Object.keys(reserveAssets).length) {
