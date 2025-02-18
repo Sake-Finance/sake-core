@@ -8,10 +8,10 @@ import {
 
 export const strategyASTR: IReserveParams = {
   strategy: rateStrategyStableTwo,
-  baseLTVAsCollateral: "7500",
-  liquidationThreshold: "8500",
-  liquidationBonus: "11000",
-  liquidationProtocolFee: "1000",
+  baseLTVAsCollateral: "6500",
+  liquidationThreshold: "7500",
+  liquidationBonus: "11200",
+  liquidationProtocolFee: "2000",
   borrowingEnabled: true,
   stableBorrowRateEnabled: false,
   flashLoanEnabled: true,
@@ -26,10 +26,10 @@ export const strategyASTR: IReserveParams = {
 
 export const strategynsASTR: IReserveParams = {
   strategy: rateStrategyStableTwo,
-  baseLTVAsCollateral: "7500",
-  liquidationThreshold: "8500",
-  liquidationBonus: "11000",
-  liquidationProtocolFee: "1000",
+  baseLTVAsCollateral: "6000",
+  liquidationThreshold: "7000",
+  liquidationBonus: "11500",
+  liquidationProtocolFee: "2000",
   borrowingEnabled: true,
   stableBorrowRateEnabled: false,
   flashLoanEnabled: true,
