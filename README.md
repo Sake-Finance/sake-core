@@ -18,7 +18,7 @@ npm run compile
 HARDHAT_NETWORK=soneium npx hardhat deploy --reset      
 
 # verify 
-npx hardhat --network soneium etherscan-verify --api-url https://xckc3jvrzboyo8w4.blockscout.com/api
+npx hardhat --network soneium etherscan-verify --api-url SONEIUM_API_URL
 
 # verify single contract (Optional)
 npx hardhat verify --network soneium 0xD1C1419d19A8FDff2700A085B0062C11A1944F7f "0x44612500AA5D0F54C8ba6F043B4844fB49B3D362"

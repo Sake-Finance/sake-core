@@ -107,6 +107,7 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eSoneiumNetwork.soneium]: `https://soneium.rpc.scs.startale.com?apikey=${getAlchemyKey(
     eSoneiumNetwork.soneium
   )}`,
+  [eSoneiumNetwork.soneium]: process.env.SONEIUM_URL,
 };
 
 export const LIVE_NETWORKS: iParamsPerNetwork<boolean> = { //TODO

@@ -62,11 +62,12 @@ export default {
     target: "ethers-v5",
   },
   networks: {
-    hardhat: hardhatNetworkSettings,
+    hardhat: { ...hardhatNetworkSettings, chains: { 1868: { hardforkHistory: { cancun: 0 } } } },
     localhost: {
       url: "http://127.0.0.1:8545",
       ...hardhatNetworkSettings,
     },
+    minato: getCommonNetworkConfig(eSoneiumNetwork.minato, 1946),
     soneium: getCommonNetworkConfig(eSoneiumNetwork.soneium, 1868),
     tenderly: getCommonNetworkConfig("tenderly", 1),
     main: getCommonNetworkConfig(eEthereumNetwork.main, 1),
@@ -223,6 +224,14 @@ export default {
         urls: {
           apiURL: "https://soneium.blockscout.com/api",
           browserURL: "https://soneium.blockscout.com/"
+        },
+      },
+      {
+        network: eSoneiumNetwork.minato,
+        chainId: 1946,
+        urls: {
+          apiURL: "https://soneium-minato.blockscout.com/api",
+          browserURL: "https://soneium-minato.blockscout.com/"
         },
       }
     ],
