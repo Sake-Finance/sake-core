@@ -29,7 +29,7 @@ export const rateStrategyStableOne: IInterestRateStrategyParams = {
 
 export const rateStrategyStableTwo: IInterestRateStrategyParams = {
   name: "rateStrategyStableTwo",
-  optimalUsageRatio: parseUnits("0.8", 27).toString(),
+  optimalUsageRatio: parseUnits("0.85", 27).toString(),
   baseVariableBorrowRate: parseUnits("0", 27).toString(),
   variableRateSlope1: parseUnits("0.04", 27).toString(),
   variableRateSlope2: parseUnits("0.75", 27).toString(),

@@ -51,8 +51,8 @@ export const getAlchemyKey = (net: eNetwork) => {
       return process.env.SEPOLIA_ALCHEMY_KEY || ALCHEMY_KEY;
     case eBaseNetwork.base:
       return process.env.BASE_ALCHEMY_KEY || ALCHEMY_KEY;
-    case eSoneiumNetwork.minato:
-      return process.env.MINATO_ALCHEMY_KEY || ALCHEMY_KEY;
+    case eSoneiumNetwork.soneium:
+      return process.env.SONEIUM_ALCHEMY_KEY || ALCHEMY_KEY;
     default:
       return ALCHEMY_KEY;
   }
@@ -101,8 +101,11 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eBaseNetwork.base]: `https://base-mainnet.g.alchemy.com/v2/${getAlchemyKey(
     eBaseNetwork.base
   )}`,
-  [eSoneiumNetwork.minato]: `https://soneium-minato.rpc.scs.startale.com?apikey=${getAlchemyKey(
-    eSoneiumNetwork.minato
+  // [eSoneiumNetwork.minato]: `https://soneium-minato.rpc.scs.startale.com?apikey=${getAlchemyKey(
+  //   eSoneiumNetwork.minato
+  // )}`,
+  [eSoneiumNetwork.soneium]: `https://soneium.rpc.scs.startale.com?apikey=${getAlchemyKey(
+    eSoneiumNetwork.soneium
   )}`,
   [eSoneiumNetwork.soneium]: process.env.SONEIUM_URL,
 };
@@ -116,8 +119,7 @@ export const LIVE_NETWORKS: iParamsPerNetwork<boolean> = { //TODO
   [eFantomNetwork.main]: true,
   [eOptimismNetwork.main]: true,
   [eBaseNetwork.base]: true,
-  // [eSoneiumNetwork.minato]: true,
-  // [eSoneiumNetwork.soneium]: true,
+  [eSoneiumNetwork.soneium]: true,
 };
 
 const GAS_PRICE_PER_NET: iParamsPerNetwork<string | number> = {
@@ -158,7 +160,7 @@ export const getCommonNetworkConfig = (
   blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
   chainId,
   gasPrice: GAS_PRICE_PER_NET[networkName] || undefined,
-  accounts: [process.env.PRIVATE_KEY, process.env.PRIVATE_KEY_ACCOUNT1], // PRIVATE_KEY_ACCOUNT1 should only be used as test user
+  accounts: [process.env.PRIVATE_KEY],
   live: LIVE_NETWORKS[networkName] || false,
 });
 

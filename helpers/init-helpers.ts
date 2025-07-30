@@ -189,12 +189,12 @@ export const initReservesByHelper = async (
       treasury: treasuryAddress,
       incentivesController,
       underlyingAssetName: reserveSymbols[i],
-      aTokenName: `Sake ${aTokenNamePrefix} ${reserveSymbols[i]}`,
-      aTokenSymbol: `a${reserveSymbols[i]}`,
-      variableDebtTokenName: `Sake ${variableDebtTokenNamePrefix} Variable Debt ${reserveSymbols[i]}`,
-      variableDebtTokenSymbol: `variableDebt${symbolPrefix}${reserveSymbols[i]}`,
-      stableDebtTokenName: `Sake ${stableDebtTokenNamePrefix} Stable Debt ${reserveSymbols[i]}`,
-      stableDebtTokenSymbol: `stableDebt${symbolPrefix}${reserveSymbols[i]}`,
+      aTokenName: `Sake ${aTokenNamePrefix} Astar ${reserveSymbols[i]}`,
+      aTokenSymbol: `aAstar${reserveSymbols[i]}`,
+      variableDebtTokenName: `Sake ${variableDebtTokenNamePrefix} Astar Variable Debt ${reserveSymbols[i]}`,
+      variableDebtTokenSymbol: `variableDebt${symbolPrefix}Astar${reserveSymbols[i]}`,
+      stableDebtTokenName: `Sake ${stableDebtTokenNamePrefix} Astar Stable Debt ${reserveSymbols[i]}`,
+      stableDebtTokenSymbol: `stableDebt${symbolPrefix}Astar${reserveSymbols[i]}`,
       params: "0x10",
     });
   }
@@ -374,11 +374,11 @@ export const configureReservesByHelper = async (
     const aclAdmin = await hre.ethers.getSigner(
       await addressProvider.getACLAdmin()
     );
-    await waitForTx(
-      await aclManager
-        .connect(aclAdmin)
-        .addRiskAdmin(reservesSetupHelper.address)
-    );
+    // await waitForTx(
+    //   await aclManager
+    //     .connect(aclAdmin)
+    //     .addRiskAdmin(reservesSetupHelper.address)
+    // );
 
     // Deploy init per chunks
     const enableChunks = 20;
@@ -404,11 +404,11 @@ export const configureReservesByHelper = async (
       );
     }
     // Remove ReservesSetupHelper from risk admins
-    await waitForTx(
-      await aclManager
-        .connect(aclAdmin)
-        .removeRiskAdmin(reservesSetupHelper.address)
-    );
+    // await waitForTx(
+    //   await aclManager
+    //     .connect(aclAdmin)
+    //     .removeRiskAdmin(reservesSetupHelper.address)
+    // );
   }
 };
 
