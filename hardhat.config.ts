@@ -62,13 +62,13 @@ export default {
     target: "ethers-v5",
   },
   networks: {
-    hardhat: hardhatNetworkSettings,
+    hardhat: { ...hardhatNetworkSettings, chains: { 1868: { hardforkHistory: { cancun: 0 } } } },
     localhost: {
       url: "http://127.0.0.1:8545",
       ...hardhatNetworkSettings,
     },
     minato: getCommonNetworkConfig(eSoneiumNetwork.minato, 1946),
-    soneium: getCommonNetworkConfig(eSoneiumNetwork.soneium, 84532), //base sepolia
+    soneium: getCommonNetworkConfig(eSoneiumNetwork.soneium, 1868),
     tenderly: getCommonNetworkConfig("tenderly", 1),
     main: getCommonNetworkConfig(eEthereumNetwork.main, 1),
     kovan: getCommonNetworkConfig(eEthereumNetwork.kovan, 42),
@@ -220,10 +220,10 @@ export default {
       },
       {
         network: eSoneiumNetwork.soneium,
-        chainId: 84532,
+        chainId: 1868,
         urls: {
-          apiURL: "https://api-sepolia.basescan.org/api",
-          browserURL: "https://api-sepolia.basescan.org/"
+          apiURL: "https://soneium.blockscout.com/api",
+          browserURL: "https://soneium.blockscout.com/"
         },
       },
       {
