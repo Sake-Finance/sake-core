@@ -46,7 +46,14 @@ const VDWSTASTR_ADDRESS = "0x5795F80B2d74B682278230F3CEaAfc4E5CF51350"
 let users = [ // some users to check balances
 "0x78e25A7E0302319749469e37f3395340C848C32E",
 "0x4acc24595C589f6790EB80909FaD67A276C06AF9",
+"0x8D26F3b93bA28DAB2670af3283E1F1cF594d430a",
+"0xCe8a3B66C5509E7be0f65485f95b69159DA870e4",
+"0x2450686BCD03E91bD67c23624F9f8d92fD1c1222",
+"0x00A5d5925eE03a251c2801a3bac66bFa3033394b",
+"0xaBD892dd47D1497Fa76B77413eE3C56890bd00CC",
 "0x129DdF9c3958D5ae6A5A61a40110bEB8D7ca8E7d",
+"0xc521cDc630b7B72ABA9aDD22545181189ab91F78",
+"0xe72555D0c3c9FaEbf34cCB9837b3027002e27730",
 ]
 
 describe("AstarPool23", function () {
@@ -83,6 +90,9 @@ describe("AstarPool23", function () {
     let balances0: any;
     let balances1: any;
     let balances2: any;
+    let indexes0: any;
+    let indexes1: any;
+    let indexes2: any;
 
     before(async function () {
         console.log(`testing AstarPool23`);
@@ -180,6 +190,9 @@ describe("AstarPool23", function () {
     it("get balances before upgrade", async function () {
         balances0 = await getAndLogBalances();
     })
+    it("get indexes before upgrade", async function () {
+        indexes0 = await getAndLogIndexes(poolProxy1);
+    })
     it("deploy AstarPool2 implementation", async function () {
         let libraries = {
             "BorrowLogic": BORROW_LOGIC,
@@ -205,6 +218,9 @@ describe("AstarPool23", function () {
     })
     it("get balances after upgrade - not zeroed yet", async function () {
         balances1 = await getAndLogBalances();
+    })
+    it("get indexes after upgrade - not zeroed yet", async function () {
+        indexes1 = await getAndLogIndexes(poolProxy2);
     })
     it("non rate setter cannot zero current interest rates", async function () {
         //await poolProxy2.connect(user1).zeroInterestRates(ASTR_ADDRESS);
@@ -247,10 +263,14 @@ describe("AstarPool23", function () {
     })
     it("can use timelock signer to upgrade to implementation 3", async function () {
         let tx = await addressProvider.connect(timelockSigner).setPoolImpl(poolImpl3.address);
+        poolProxy3 = await ethers.getContractAt("AstarPool3", ASTAR_POOL_PROXY_ADDRESS);
     })
 
     it("get balances after upgrade and zeroed", async function () {
         balances2 = await getAndLogBalances();
+    })
+    it("get indexes after upgrade and zeroed", async function () {
+        indexes2 = await getAndLogIndexes(poolProxy3);
     })
     it("log balance diffs", async function () {
         console.log("before and after 1")
@@ -258,8 +278,131 @@ describe("AstarPool23", function () {
         console.log("before and after 2")
         getAndLogBalancesDiff(balances1, balances2)
     })
+    it("log new balances", async function () {
+        csvifyBalances(balances2)
+    })
+    it("log new indexes", async function () {
+        //csvifyIndexes(indexes2)
+        console.log('logging indexes before and after upgrade')
+        console.log(`block 0: number ${indexes0.block.number} timestamp ${(new Date(indexes0.block.timestamp * 1000)).toLocaleString()}`)
+        console.log(`block 1: number ${indexes1.block.number} timestamp ${(new Date(indexes1.block.timestamp * 1000)).toLocaleString()}`)
+        console.log(`block 2: number ${indexes2.block.number} timestamp ${(new Date(indexes2.block.timestamp * 1000)).toLocaleString()}`)
+
+        /*
+        var { block, reserveDataAstr, reserveDataNsastr, reserveDataWstastr, reserveNormalizedIncomeAstr, reserveNormalizedIncomeNsastr, reserveNormalizedIncomeWstastr, reserveNormalizedVariableDebt, reserveNormalizedVariableDebtNsastr, reserveNormalizedVariableDebtWstastr } = indexes0
+        console.log({ reserveDataAstr, reserveDataNsastr, reserveDataWstastr, reserveNormalizedIncomeAstr, reserveNormalizedIncomeNsastr, reserveNormalizedIncomeWstastr, reserveNormalizedVariableDebt, reserveNormalizedVariableDebtNsastr, reserveNormalizedVariableDebtWstastr })
+        var { block, reserveDataAstr, reserveDataNsastr, reserveDataWstastr, reserveNormalizedIncomeAstr, reserveNormalizedIncomeNsastr, reserveNormalizedIncomeWstastr, reserveNormalizedVariableDebt, reserveNormalizedVariableDebtNsastr, reserveNormalizedVariableDebtWstastr } = indexes1
+        console.log({ reserveDataAstr, reserveDataNsastr, reserveDataWstastr, reserveNormalizedIncomeAstr, reserveNormalizedIncomeNsastr, reserveNormalizedIncomeWstastr, reserveNormalizedVariableDebt, reserveNormalizedVariableDebtNsastr, reserveNormalizedVariableDebtWstastr })
+        var { block, reserveDataAstr, reserveDataNsastr, reserveDataWstastr, reserveNormalizedIncomeAstr, reserveNormalizedIncomeNsastr, reserveNormalizedIncomeWstastr, reserveNormalizedVariableDebt, reserveNormalizedVariableDebtNsastr, reserveNormalizedVariableDebtWstastr } = indexes2
+        console.log({ reserveDataAstr, reserveDataNsastr, reserveDataWstastr, reserveNormalizedIncomeAstr, reserveNormalizedIncomeNsastr, reserveNormalizedIncomeWstastr, reserveNormalizedVariableDebt, reserveNormalizedVariableDebtNsastr, reserveNormalizedVariableDebtWstastr })
+        */
+
+        console.log('\n\nreserve data ASTR\n')
+        console.log('liquidity index')
+        console.log(indexes0.reserveDataAstr.liquidityIndex.toString())
+        console.log(indexes1.reserveDataAstr.liquidityIndex.toString())
+        console.log(indexes2.reserveDataAstr.liquidityIndex.toString())
+        console.log('variable borrow index')
+        console.log(indexes0.reserveDataAstr.variableBorrowIndex.toString())
+        console.log(indexes1.reserveDataAstr.variableBorrowIndex.toString())
+        console.log(indexes2.reserveDataAstr.variableBorrowIndex.toString())
+        console.log('normalized income')
+        console.log(indexes0.reserveNormalizedIncomeAstr.toString())
+        console.log(indexes1.reserveNormalizedIncomeAstr.toString())
+        console.log(indexes2.reserveNormalizedIncomeAstr.toString())
+        console.log('normalized variable debt')
+        console.log(indexes0.reserveNormalizedVariableDebtAstr.toString())
+        console.log(indexes1.reserveNormalizedVariableDebtAstr.toString())
+        console.log(indexes2.reserveNormalizedVariableDebtAstr.toString())
+        console.log('aASTR total supply')
+        console.log(formatUnits(indexes0.aastrSupply, 18))
+        console.log(formatUnits(indexes1.aastrSupply, 18))
+        console.log(formatUnits(indexes2.aastrSupply, 18))
+        console.log('vdASTR total supply')
+        console.log(formatUnits(indexes0.vdastrSupply, 18))
+        console.log(formatUnits(indexes1.vdastrSupply, 18))
+        console.log(formatUnits(indexes2.vdastrSupply, 18))
+
+        console.log('\n\nreserve data nsASTR\n')
+        console.log('liquidity index')
+        console.log(indexes0.reserveDataNsastr.liquidityIndex.toString())
+        console.log(indexes1.reserveDataNsastr.liquidityIndex.toString())
+        console.log(indexes2.reserveDataNsastr.liquidityIndex.toString())
+        console.log('variable borrow index')
+        console.log(indexes0.reserveDataNsastr.variableBorrowIndex.toString())
+        console.log(indexes1.reserveDataNsastr.variableBorrowIndex.toString())
+        console.log(indexes2.reserveDataNsastr.variableBorrowIndex.toString())
+        console.log('normalized income')
+        console.log(indexes0.reserveNormalizedIncomeNsastr.toString())
+        console.log(indexes1.reserveNormalizedIncomeNsastr.toString())
+        console.log(indexes2.reserveNormalizedIncomeNsastr.toString())
+        console.log('normalized variable debt')
+        console.log(indexes0.reserveNormalizedVariableDebtNsastr.toString())
+        console.log(indexes1.reserveNormalizedVariableDebtNsastr.toString())
+        console.log(indexes2.reserveNormalizedVariableDebtNsastr.toString())
+        console.log('ansASTR total supply')
+        console.log(formatUnits(indexes0.ansastrSupply, 18))
+        console.log(formatUnits(indexes1.ansastrSupply, 18))
+        console.log(formatUnits(indexes2.ansastrSupply, 18))
+        console.log('vdnsASTR total supply')
+        console.log(formatUnits(indexes0.vdnsastrSupply, 18))
+        console.log(formatUnits(indexes1.vdnsastrSupply, 18))
+        console.log(formatUnits(indexes2.vdnsastrSupply, 18))
+
+        console.log('\n\nreserve data wstASTR\n')
+        console.log('liquidity index')
+        console.log(indexes0.reserveDataWstastr.liquidityIndex.toString())
+        console.log(indexes1.reserveDataWstastr.liquidityIndex.toString())
+        console.log(indexes2.reserveDataWstastr.liquidityIndex.toString())
+        console.log('variable borrow index')
+        console.log(indexes0.reserveDataWstastr.variableBorrowIndex.toString())
+        console.log(indexes1.reserveDataWstastr.variableBorrowIndex.toString())
+        console.log(indexes2.reserveDataWstastr.variableBorrowIndex.toString())
+        console.log('normalized income')
+        console.log(indexes0.reserveNormalizedIncomeWstastr.toString())
+        console.log(indexes1.reserveNormalizedIncomeWstastr.toString())
+        console.log(indexes2.reserveNormalizedIncomeWstastr.toString())
+        console.log('normalized variable debt')
+        console.log(indexes0.reserveNormalizedVariableDebtWstastr.toString())
+        console.log(indexes1.reserveNormalizedVariableDebtWstastr.toString())
+        console.log(indexes2.reserveNormalizedVariableDebtWstastr.toString())
+        console.log('awstASTR total supply')
+        console.log(formatUnits(indexes0.awstastrSupply, 18))
+        console.log(formatUnits(indexes1.awstastrSupply, 18))
+        console.log(formatUnits(indexes2.awstastrSupply, 18))
+        console.log('vdwstASTR total supply')
+        console.log(formatUnits(indexes0.vdwstastrSupply, 18))
+        console.log(formatUnits(indexes1.vdwstastrSupply, 18))
+        console.log(formatUnits(indexes2.vdwstastrSupply, 18))
+
+        console.log(`\n`)
+    })
     
+
+    async function getAndLogIndexes(poolContract:any) {
+        let block = await ethers.provider.getBlock("latest")
+        //console.log(`block number ${block.number} timestamp ${(new Date(block.timestamp * 1000)).toLocaleString()}`)
+        let reserveDataAstr = await poolContract.getReserveData(ASTR_ADDRESS)
+        let reserveDataNsastr = await poolContract.getReserveData(NSASTR_ADDRESS)
+        let reserveDataWstastr = await poolContract.getReserveData(WSTASTR_ADDRESS)
+        let reserveNormalizedIncomeAstr = await poolContract.getReserveNormalizedIncome(ASTR_ADDRESS)
+        let reserveNormalizedIncomeNsastr = await poolContract.getReserveNormalizedIncome(NSASTR_ADDRESS)
+        let reserveNormalizedIncomeWstastr = await poolContract.getReserveNormalizedIncome(WSTASTR_ADDRESS)
+        let reserveNormalizedVariableDebtAstr = await poolContract.getReserveNormalizedVariableDebt(ASTR_ADDRESS)
+        let reserveNormalizedVariableDebtNsastr = await poolContract.getReserveNormalizedVariableDebt(NSASTR_ADDRESS)
+        let reserveNormalizedVariableDebtWstastr = await poolContract.getReserveNormalizedVariableDebt(WSTASTR_ADDRESS)
+        let aastrSupply = await aastr.totalSupply()
+        let ansastrSupply = await ansastr.totalSupply()
+        let awstastrSupply = await awstastr.totalSupply()
+        let vdastrSupply = await vdastr.totalSupply()
+        let vdnsastrSupply = await vdnsastr.totalSupply()
+        let vdwstastrSupply = await vdwstastr.totalSupply()
+        let res = { block, reserveDataAstr, reserveDataNsastr, reserveDataWstastr, reserveNormalizedIncomeAstr, reserveNormalizedIncomeNsastr, reserveNormalizedIncomeWstastr, reserveNormalizedVariableDebtAstr, reserveNormalizedVariableDebtNsastr, reserveNormalizedVariableDebtWstastr, aastrSupply, ansastrSupply, awstastrSupply, vdastrSupply, vdnsastrSupply, vdwstastrSupply }
+        return res
+    }
+
     async function getAndLogBalances() {
+        return; // temp disabled
         let balances = []
         for(let userIndex = 0; userIndex < users.length; userIndex++) {
             let user = users[userIndex]
@@ -295,6 +438,7 @@ describe("AstarPool23", function () {
     }
 
     function getAndLogBalancesDiff(balancesBefore:any, balancesAfter:any) {
+        return; // temp disabled
         for(let userIndex = 0; userIndex < users.length; userIndex++) {
             let user = users[userIndex]
             let balsBefore = balancesBefore[userIndex]
@@ -326,6 +470,30 @@ describe("AstarPool23", function () {
         }
         return balancesDiff
         */
+    }
+
+    function csvifyBalances(balances:any) {
+        return; // temp disabled
+        console.log(`user,aASTR,ansASTR,awstASTR,vdASTR,vdnsASTR,vdwstASTR`)
+        for(let userIndex = 0; userIndex < users.length; userIndex++) {
+            let user = users[userIndex]
+            let userBalances = balances[userIndex]
+            console.log(`${user},${formatUnits(userBalances[1])},${formatUnits(userBalances[4])},${formatUnits(userBalances[7])},${formatUnits(userBalances[2])},${formatUnits(userBalances[5])},${formatUnits(userBalances[8])}`)
+            /*
+            console.log('')
+            console.log(`ASTR       : ${formatBalance(balsBefore[0])} ${formatBalance(balsAfter[0])} ${formatBalance(balsAfter[0].sub(balsBefore[0]))}`)
+            console.log(`AASTR      : ${formatBalance(balsBefore[1])} ${formatBalance(balsAfter[1])} ${formatBalance(balsAfter[1].sub(balsBefore[1]))}`)
+            console.log(`VDASTR     : ${formatBalance(balsBefore[2])} ${formatBalance(balsAfter[2])} ${formatBalance(balsAfter[2].sub(balsBefore[2]))}`)
+            console.log('')
+            console.log(`NSASTR     : ${formatBalance(balsBefore[3])} ${formatBalance(balsAfter[3])} ${formatBalance(balsAfter[3].sub(balsBefore[3]))}`)
+            console.log(`ANSASTR    : ${formatBalance(balsBefore[4])} ${formatBalance(balsAfter[4])} ${formatBalance(balsAfter[4].sub(balsBefore[4]))}`)
+            console.log(`VDNSASTR   : ${formatBalance(balsBefore[5])} ${formatBalance(balsAfter[5])} ${formatBalance(balsAfter[5].sub(balsBefore[5]))}`)
+            console.log('')
+            console.log(`WSTASTR    : ${formatBalance(balsBefore[6])} ${formatBalance(balsAfter[6])} ${formatBalance(balsAfter[6].sub(balsBefore[6]))}`)
+            console.log(`AWSTASTR   : ${formatBalance(balsBefore[7])} ${formatBalance(balsAfter[7])} ${formatBalance(balsAfter[7].sub(balsBefore[7]))}`)
+            console.log(`VDWSTASTR  : ${formatBalance(balsBefore[8])} ${formatBalance(balsAfter[8])} ${formatBalance(balsAfter[8].sub(balsBefore[8]))}`)
+            */
+        }
     }
 
     // reverts if no code was deployed at the given address and block
