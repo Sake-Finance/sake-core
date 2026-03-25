@@ -14,6 +14,7 @@ import {IPoolAddressesProvider} from '../../interfaces/IPoolAddressesProvider.so
 contract MainPool2 is L2Pool {
 
   address public immutable rateZeroer;
+  address public immutable repairer;
 
   constructor(IPoolAddressesProvider provider, address zeroer) L2Pool(provider) {
     rateZeroer = zeroer;
@@ -37,7 +38,39 @@ contract MainPool2 is L2Pool {
   function getRevision() internal pure virtual override returns (uint256) {
     return 2;
   }
-  
+
+  function supply(
+    address asset,
+    uint256 amount,
+    address onBehalfOf,
+    uint16 referralCode
+  ) public virtual override {
+    if(msg.sender != repairer) revert("Unauthorized");
+    super.supply(asset, amount, onBehalfOf, referralCode);
+  }
+
+  function supplyWithPermit(
+    address asset,
+    uint256 amount,
+    address onBehalfOf,
+    uint16 referralCode,
+    uint256 deadline,
+    uint8 permitV,
+    bytes32 permitR,
+    bytes32 permitS
+  ) public virtual override {
+    if(msg.sender != repairer) revert("Unauthorized");
+    super.supplyWithPermit(asset, amount, onBehalfOf, referralCode, deadline, permitV, permitR, permitS);
+  }
+
+  function withdraw(
+    address asset,
+    uint256 amount,
+    address to
+  ) public virtual override returns (uint256) {
+    revert("Withdrawals disabled");
+  }
+
   function borrow(
     address asset,
     uint256 amount,
@@ -46,6 +79,39 @@ contract MainPool2 is L2Pool {
     address onBehalfOf
   ) public virtual override {
     revert("Borrows disabled");
+  }
+
+  function repay(
+    address asset,
+    uint256 amount,
+    uint256 interestRateMode,
+    address onBehalfOf
+  ) public virtual override returns (uint256) {
+    if(msg.sender != repairer) revert("Unauthorized");
+    return super.repay(asset, amount, interestRateMode, onBehalfOf);
+  }
+
+  function repayWithPermit(
+    address asset,
+    uint256 amount,
+    uint256 interestRateMode,
+    address onBehalfOf,
+    uint256 deadline,
+    uint8 permitV,
+    bytes32 permitR,
+    bytes32 permitS
+  ) public virtual override returns (uint256) {
+    if(msg.sender != repairer) revert("Unauthorized");
+    return super.repayWithPermit(asset, amount, interestRateMode, onBehalfOf, deadline, permitV, permitR, permitS);
+  }
+
+  function repayWithATokens(
+    address asset,
+    uint256 amount,
+    uint256 interestRateMode
+  ) public virtual override returns (uint256) {
+    if(msg.sender != repairer) revert("Unauthorized");
+    return super.repayWithATokens(asset, amount, interestRateMode);
   }
 
   function liquidationCall(
@@ -78,5 +144,14 @@ contract MainPool2 is L2Pool {
     uint16 referralCode
   ) public virtual override {
     revert("Flash loans disabled");
+  }
+
+  function deposit(
+    address asset,
+    uint256 amount,
+    address onBehalfOf,
+    uint16 referralCode
+  ) external virtual override {
+    revert("Deposits disabled");
   }
 }
