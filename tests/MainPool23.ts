@@ -1,12 +1,3 @@
-/*
-import hre from "hardhat";
-const { ethers } = hre;
-const { provider } = ethers;
-import { BigNumber as BN, BigNumberish, Signer } from "ethers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import chai from "chai";
-const { expect, assert } = chai;
-*/
 import hre from "hardhat";
 import { ethers } from "hardhat";
 import { Contract, Signer } from "ethers";
@@ -15,6 +6,7 @@ import { expect } from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import { ZERO_BYTES_32 } from "../helpers";
+import { parseUnits } from "ethers/lib/utils";
 const BN = ethers.BigNumber;
 
 const { AddressZero, WeiPerEther, MaxUint256, Zero } = ethers.constants;
@@ -24,7 +16,9 @@ const MAIN_POOL_PROXY_ADDRESS = "0x3C3987A310ee13F7B8cBBe21D97D4436ba5E4B5f";
 const MAIN_POOL_IMPLEMENTATION_ADDRESS = "0x7d4FFcE767430D1077333622718B5F28E23D3180";
 
 const ADDRESS_PROVIDER_ADDRESS = "0x73a35ca19Da0357651296c40805c31585f19F741"; // also pool proxy admin
+const POOL_CONFIGURATOR_ADDRESS = "0xaB9Cf2CEae8D559097e99e28E89A053c8Bca1a81";
 const TIMELOCK_ADDRESS = "0xAF4c640E8e15Ff2cd7fB7645Ddd9861882cFeC28"; // also owner of address provider
+const MULTISIG_ADDRESS = "0x7Bdf000CA60120429CBBAaB2C5f30471C6FdE12e";
 
 const BORROW_LOGIC       = "0x545541a451471A26d1fF29c9821D0ea97325f10E";
 const BRIDGE_LOGIC       = "0x4E041B5019CeD3479A35f6C1AD29f81d1cE70109";
@@ -96,21 +90,25 @@ interface BalanceSnapshot {
 describe("MainPool23", function () {
     let signer: SignerWithAddress;
     let rateSetter: SignerWithAddress;
-    let repairer: SignerWithAddress;
+    //let repairer: SignerWithAddress;
     let user1: SignerWithAddress;
     let user2: SignerWithAddress;
     let user3: SignerWithAddress;
     let timelockSigner: SignerWithAddress;
+    let multisigSigner: SignerWithAddress;
     let provider: any;
 
     let poolProxy1: any; // proxy with original L2Pool
     let poolProxy2: any; // proxy with MainPool2
     let poolProxy3: any; // proxy with MainPool3
+    let poolProxy4: any; // proxy with MainPool4
 
     let poolImpl2: any; // MainPool2 impl
     let poolImpl3: any; // MainPool3 impl
+    let poolImpl4: any; // MainPool4 impl
 
     let addressProvider: any;
+    let poolConfigurator: any;
 
     let indexSnapshots: IndexSnapshot[] = [];
     let balanceSnapshots: BalanceSnapshot[] = [];
@@ -122,7 +120,7 @@ describe("MainPool23", function () {
         let signers = await ethers.getSigners()
         signer = signers[0]
         rateSetter = signers[1]
-        repairer = signers[2]
+        //repairer = signers[2]
         user1 = signers[3]
         user2 = signers[4]
         user3 = signers[5]
@@ -139,6 +137,17 @@ describe("MainPool23", function () {
             data: "0x"
         })
 
+        await hre.network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [MULTISIG_ADDRESS],
+        });
+        multisigSigner = provider.getSigner(MULTISIG_ADDRESS);
+        await user1.sendTransaction({
+            to: MULTISIG_ADDRESS,
+            value: WeiPerEther.mul(1),
+            data: "0x"
+        })
+
         // Ensure output directory exists
         fs.mkdirSync(OUTPUT_DIR, { recursive: true });
     })
@@ -147,7 +156,9 @@ describe("MainPool23", function () {
         await expectDeployed(MAIN_POOL_PROXY_ADDRESS);
         await expectDeployed(MAIN_POOL_IMPLEMENTATION_ADDRESS);
         await expectDeployed(ADDRESS_PROVIDER_ADDRESS);
+        await expectDeployed(POOL_CONFIGURATOR_ADDRESS);
         await expectDeployed(TIMELOCK_ADDRESS);
+        await expectDeployed(MULTISIG_ADDRESS);
 
         await expectDeployed(BORROW_LOGIC);
         await expectDeployed(BRIDGE_LOGIC);
@@ -170,13 +181,14 @@ describe("MainPool23", function () {
 
         poolProxy1 = await ethers.getContractAt("L2Pool", MAIN_POOL_PROXY_ADDRESS);
         addressProvider = await ethers.getContractAt("PoolAddressesProvider", ADDRESS_PROVIDER_ADDRESS);
+        poolConfigurator = await ethers.getContractAt("PoolConfigurator", POOL_CONFIGURATOR_ADDRESS);
     })
     it("get block number", async function () {
         var blockNumber = await provider.getBlockNumber();
         console.log(`blockNumber ${blockNumber}`);
-        // 20601548
-        // 20601606
-        // not pinned, changes every run
+        if(blockNumber != 20643802) {
+            throw new Error(`Wrong block number. Run this test using this command:\nMARKET_NAME=soneium FORK=soneium FORK_BLOCK_NUMBER=20643800 npx hardhat test ./tests/MainPool23.ts`)
+        }
     })
     it("get balances before upgrade", async function () {
         balanceSnapshots.push(await getBalances());
@@ -195,11 +207,11 @@ describe("MainPool23", function () {
             "SupplyLogic": SUPPLY_LOGIC,
         }
         let poolZeroFactory = await ethers.getContractFactory("MainPool2", { libraries });
-        poolImpl2 = await poolZeroFactory.deploy(ADDRESS_PROVIDER_ADDRESS, rateSetter.address, repairer.address);
+        poolImpl2 = await poolZeroFactory.deploy(ADDRESS_PROVIDER_ADDRESS, rateSetter.address, MULTISIG_ADDRESS);
         await poolImpl2.deployed();
         expect(await poolImpl2.ADDRESSES_PROVIDER()).eq(ADDRESS_PROVIDER_ADDRESS);
         expect(await poolImpl2.rateZeroer()).eq(rateSetter.address);
-        expect(await poolImpl2.repairer()).eq(repairer.address);
+        expect(await poolImpl2.repairer()).eq(MULTISIG_ADDRESS);
     })
     it("can use timelock signer to upgrade implementation", async function () {
         console.log(`setting pool impl to ${poolImpl2.address}`)
@@ -225,6 +237,12 @@ describe("MainPool23", function () {
             await poolProxy2.connect(rateSetter).setRateZero(asset.address);
         }
     })
+    it("get balances after upgrade and zeroed", async function () {
+        balanceSnapshots.push(await getBalances());
+    })
+    it("get indexes after upgrade and zeroed", async function () {
+        indexSnapshots.push(await getIndexes(poolProxy2));
+    })
     it("cannot revert to previous implementation", async function () {
         await expect(addressProvider.connect(timelockSigner).setPoolImpl(MAIN_POOL_IMPLEMENTATION_ADDRESS)).to.be.reverted;
     })
@@ -248,8 +266,62 @@ describe("MainPool23", function () {
         await expect(poolProxy2.connect(user1).repayWithPermit(ASSETS[0].address, 1, 0, user2.address, MaxUint256, 1, ZERO_BYTES_32, ZERO_BYTES_32)).to.be.revertedWith("Unauthorized")
         await expect(poolProxy2.connect(user1).repayWithATokens(ASSETS[0].address, 1, 0)).to.be.revertedWith("Unauthorized")
     })
-    it("repairer can supply", async function () {})
-    it("repairer can withdraw", async function () {})
+    it("repairer cannot supply while reserve is paused", async function () {
+        let WETH = ASSETS[0].contract;
+        await WETH.connect(multisigSigner).approve(poolProxy2.address, MaxUint256);
+        await expect(poolProxy2.connect(multisigSigner).supply(WETH.address, 1, user1.address, 0)).to.be.revertedWith('29')
+    })
+    it("timelock can unpause WETH", async function () {
+        let tx = await poolConfigurator.connect(timelockSigner).setReservePause(ASSETS[0].address, false);
+    })
+    it("get more WETH", async function () {
+        let WETH = ASSETS[0].contract;
+        let amt = parseUnits("10")
+        await user1.sendTransaction({to: WETH.address, value: amt})
+        await WETH.connect(user1).transfer(MULTISIG_ADDRESS, amt);
+    })
+    it("repairer can supply", async function () {
+        let user = "0xc38430C52ae5a0f43Bd69c3445f72f21Beb023Cf"
+        let WETH = ASSETS[0].contract;
+        let aWETH = ASSETS[0].aContract;
+        let vdWETH = ASSETS[0].vdContract;
+        let expectedBal0 = "0"
+        let supplyAmount = parseUnits("3.390968487960375343", 18);
+        let expectedBal1 = supplyAmount.add(expectedBal0)
+        expect(await WETH.balanceOf(MULTISIG_ADDRESS)).gte(supplyAmount)
+        let bal0 = await aWETH.balanceOf(user);
+        expect(bal0).eq(expectedBal0)
+        let tx = await poolProxy2.connect(multisigSigner).supply(WETH.address, supplyAmount, user, 0);
+        await expect(tx).to.emit(WETH, "Transfer").withArgs(MULTISIG_ADDRESS, aWETH.address, supplyAmount);
+        await expect(tx).to.emit(poolProxy2, "Supply").withArgs(WETH.address, MULTISIG_ADDRESS, user, supplyAmount, 0);
+        let bal1 = await aWETH.balanceOf(user);
+        expect(bal1).eq(expectedBal1)
+    })
+    it("repairer cannot repay while reserve is paused", async function () {
+        let USDT0 = ASSETS[3].contract;
+        await USDT0.connect(multisigSigner).approve(poolProxy2.address, MaxUint256);
+        //let tx = await poolProxy2.connect(multisigSigner).repay(USDT0.address, 1, 0, user1.address);
+        await expect(poolProxy2.connect(multisigSigner).repay(USDT0.address, 1, 2, user1.address)).to.be.revertedWith('29')
+    })
+    it("timelock can unpause USDT0", async function () {
+        let tx = await poolConfigurator.connect(timelockSigner).setReservePause(ASSETS[3].address, false);
+    })
+    it("repairer can repay", async function () {
+        let user = "0xB641F790b0Dd9D610E65Cee22c8f66060B6e98ed"
+        let USDT0 = ASSETS[3].contract;
+        let aUSDT0 = ASSETS[3].aContract;
+        let vdUSDT0 = ASSETS[3].vdContract;
+        let expectedBal0 = "571564383512"
+        let bal0 = await vdUSDT0.balanceOf(user);
+        expect(bal0).eq(expectedBal0)
+        await USDT0.connect(multisigSigner).approve(poolProxy2.address, MaxUint256);
+        expect(await USDT0.balanceOf(MULTISIG_ADDRESS)).gte(expectedBal0)
+        let tx = await poolProxy2.connect(multisigSigner).repay(USDT0.address, expectedBal0, 2, user);
+        await expect(tx).to.emit(USDT0, "Transfer").withArgs(MULTISIG_ADDRESS, aUSDT0.address, expectedBal0);
+        await expect(tx).to.emit(poolProxy2, "Repay").withArgs(USDT0.address, user, MULTISIG_ADDRESS, expectedBal0, false);
+        let bal1 = await vdUSDT0.balanceOf(user);
+        expect(bal1).eq(0)
+    })
     it("deploy MainPool3 implementation", async function () {
         let libraries = {
             "BorrowLogic": BORROW_LOGIC,
@@ -269,12 +341,24 @@ describe("MainPool23", function () {
         let tx = await addressProvider.connect(timelockSigner).setPoolImpl(poolImpl3.address);
         poolProxy3 = await ethers.getContractAt("MainPool3", MAIN_POOL_PROXY_ADDRESS);
     })
-
-    it("get balances after upgrade and zeroed", async function () {
-        balanceSnapshots.push(await getBalances());
+    it("deploy MainPool4 implementation", async function () {
+        let libraries = {
+            "BorrowLogic": BORROW_LOGIC,
+            "BridgeLogic": BRIDGE_LOGIC,
+            "EModeLogic": EMODE_LOGIC,
+            "FlashLoanLogic": FLASHLOAN_LOGIC,
+            "LiquidationLogic": LIQUIDATION_LOGIC,
+            "PoolLogic": POOL_LOGIC,
+            "SupplyLogic": SUPPLY_LOGIC,
+        }
+        let poolZeroFactory = await ethers.getContractFactory("MainPool4", { libraries });
+        poolImpl4 = await poolZeroFactory.deploy(ADDRESS_PROVIDER_ADDRESS);
+        await poolImpl4.deployed();
+        expect(await poolImpl4.ADDRESSES_PROVIDER()).eq(ADDRESS_PROVIDER_ADDRESS);
     })
-    it("get indexes after upgrade and zeroed", async function () {
-        indexSnapshots.push(await getIndexes(poolProxy3));
+    it("can use timelock signer to upgrade to implementation 4", async function () {
+        let tx = await addressProvider.connect(timelockSigner).setPoolImpl(poolImpl4.address);
+        poolProxy4 = await ethers.getContractAt("MainPool4", MAIN_POOL_PROXY_ADDRESS);
     })
     it("write indexes CSV", async function () {
         writeIndexesCsv(indexSnapshots);
@@ -341,8 +425,8 @@ describe("MainPool23", function () {
 
     function writeIndexesCsv(snapshots: IndexSnapshot[]) {
         const snapshotHeaders = snapshots.map((s, i) => `snapshot${i} (block ${s.blockNumber})`);
-        const header = `asset,metric,${snapshotHeaders.join(",")}`;
-        const rows: string[] = [header];
+        //const header = `asset,metric,${snapshotHeaders.join(",")}`;
+        //const rows: string[] = [header];
 
         const metrics: (keyof AssetIndexes)[] = [
             "liquidityIndex",
@@ -352,17 +436,32 @@ describe("MainPool23", function () {
             "aTokenSupply",
             "vdTokenSupply",
         ];
-
+        const header = `snapshot,${metrics.join(",")}`;
+        
+        /*
         for (const asset of ASSETS) {
             for (const metric of metrics) {
                 const values = snapshots.map(s => s.assets[asset.symbol][metric]);
                 rows.push(`${asset.symbol},${metric},${values.join(",")}`);
             }
         }
-
         const filePath = path.join(OUTPUT_DIR, "indexes.csv");
         fs.writeFileSync(filePath, rows.join("\n") + "\n");
         console.log(`Wrote ${filePath}`);
+        */
+        for (const asset of ASSETS) {
+            const rows: string[] = [header];
+
+            for (let i = 0; i < snapshots.length; i++) {
+                const snap = snapshots[i];
+                const values = metrics.map(metric => snap.assets[asset.symbol][metric]);
+                rows.push(`${i},${values.join(",")}`);
+            }
+
+            const filePath = path.join(OUTPUT_DIR, `indexes_${asset.symbol}.csv`);
+            fs.writeFileSync(filePath, rows.join("\n") + "\n");
+            console.log(`Wrote ${filePath}`);
+        }
     }
 
     function writeBalancesCsv(snapshots: BalanceSnapshot[]) {
