@@ -19,6 +19,7 @@ const ADDRESS_PROVIDER_ADDRESS = "0x73a35ca19Da0357651296c40805c31585f19F741"; /
 const POOL_CONFIGURATOR_ADDRESS = "0xaB9Cf2CEae8D559097e99e28E89A053c8Bca1a81";
 const TIMELOCK_ADDRESS = "0xAF4c640E8e15Ff2cd7fB7645Ddd9861882cFeC28"; // also owner of address provider
 const MULTISIG_ADDRESS = "0x7Bdf000CA60120429CBBAaB2C5f30471C6FdE12e";
+const ZERO_IRM_ADDRESS = "0x189EBCA84598b3F68BbAe696F251C99549a5d479";
 
 const BORROW_LOGIC       = "0x545541a451471A26d1fF29c9821D0ea97325f10E";
 const BRIDGE_LOGIC       = "0x4E041B5019CeD3479A35f6C1AD29f81d1cE70109";
@@ -64,6 +65,9 @@ const OUTPUT_DIR = path.join(__dirname, "output");
 interface AssetIndexes {
   liquidityIndex: string;
   variableBorrowIndex: string;
+  currentLiquidityRate: string;
+  currentVariableBorrowRate: string;
+  currentStableBorrowRate: string;
   normalizedIncome: string;
   normalizedVarDebt: string;
   aTokenSupply: string;
@@ -73,6 +77,7 @@ interface AssetIndexes {
 interface IndexSnapshot {
   blockNumber: number;
   blockTimestamp: string;
+  snapshotDescription: string;
   assets: Record<string, AssetIndexes>;
 }
 
@@ -160,6 +165,7 @@ describe("MainPool23", function () {
       await expectDeployed(POOL_CONFIGURATOR_ADDRESS);
       await expectDeployed(TIMELOCK_ADDRESS);
       await expectDeployed(MULTISIG_ADDRESS);
+      await expectDeployed(ZERO_IRM_ADDRESS);
 
       await expectDeployed(BORROW_LOGIC);
       await expectDeployed(BRIDGE_LOGIC);
@@ -195,7 +201,7 @@ describe("MainPool23", function () {
       balanceSnapshots.push(await getBalances());
     })
     it("get indexes before upgrade", async function () {
-      indexSnapshots.push(await getIndexes(poolProxy1));
+      indexSnapshots.push(await getIndexes(poolProxy1, "before upgrade"));
     })
   })
   describe("MainPool2", function () {
@@ -227,13 +233,22 @@ describe("MainPool23", function () {
       balanceSnapshots.push(await getBalances());
     })
     it("get indexes after upgrade - not zeroed yet", async function () {
-      indexSnapshots.push(await getIndexes(poolProxy2));
+      indexSnapshots.push(await getIndexes(poolProxy2, "not yet zeroed"));
     })
     it("non rate setter cannot zero current interest rates", async function () {
       await expect(poolProxy2.connect(user1).setRateZero(ASSETS[4].address)).to.be.reverted
     })
     it("cannot zero current interest rates of unlisted asset", async function () {
       await expect(poolProxy2.connect(rateSetter).setRateZero(user1.address)).to.be.reverted
+    })
+    it("can set zero irm", async function () {
+      for (const asset of ASSETS) {
+        let reserveData = await poolProxy2.getReserveData(asset.address);
+        let oldRateStrategyAddress = reserveData.interestRateStrategyAddress;
+        console.log(`asset ${asset.symbol} oldRateStrategyAddress ${oldRateStrategyAddress}`)
+        let tx = await poolConfigurator.connect(timelockSigner).setReserveInterestRateStrategyAddress(asset.address, ZERO_IRM_ADDRESS);
+        await expect(tx).to.emit(poolConfigurator, "ReserveInterestRateStrategyChanged").withArgs(asset.address, oldRateStrategyAddress, ZERO_IRM_ADDRESS);
+      }
     })
     it("can zero current interest rates", async function () {
       for (const asset of ASSETS) {
@@ -244,7 +259,7 @@ describe("MainPool23", function () {
       balanceSnapshots.push(await getBalances());
     })
     it("get indexes after upgrade and zeroed", async function () {
-      indexSnapshots.push(await getIndexes(poolProxy2));
+      indexSnapshots.push(await getIndexes(poolProxy2, "after upgrade and zeroed"));
     })
     it("cannot revert to previous implementation", async function () {
       await expect(addressProvider.connect(timelockSigner).setPoolImpl(MAIN_POOL_IMPLEMENTATION_ADDRESS)).to.be.reverted;
@@ -325,6 +340,12 @@ describe("MainPool23", function () {
       let bal1 = await vdUSDT0.balanceOf(user);
       expect(bal1).eq(0)
     })
+    it("get balances after supply and repay", async function () {
+      balanceSnapshots.push(await getBalances());
+    })
+    it("get indexes after supply and repay", async function () {
+      indexSnapshots.push(await getIndexes(poolProxy2, "after supply and repay"));
+    })
   })
   describe("MainPool3", function () {
     it("deploy MainPool3 implementation", async function () {
@@ -384,7 +405,7 @@ describe("MainPool23", function () {
   // Data collection
   // =========================================================================
 
-  async function getIndexes(poolContract: any): Promise<IndexSnapshot> {
+  async function getIndexes(poolContract: any, snapshotDescription: string): Promise<IndexSnapshot> {
     let block = await ethers.provider.getBlock("latest");
     let assets: Record<string, AssetIndexes> = {};
 
@@ -398,6 +419,9 @@ describe("MainPool23", function () {
       assets[asset.symbol] = {
         liquidityIndex: reserveData.liquidityIndex.toString(),
         variableBorrowIndex: reserveData.variableBorrowIndex.toString(),
+        currentLiquidityRate: reserveData.currentLiquidityRate.toString(),
+        currentVariableBorrowRate: reserveData.currentVariableBorrowRate.toString(),
+        currentStableBorrowRate: reserveData.currentStableBorrowRate.toString(),
         normalizedIncome: normalizedIncome.toString(),
         normalizedVarDebt: normalizedVarDebt.toString(),
         aTokenSupply: aSupply.toString(),
@@ -408,6 +432,7 @@ describe("MainPool23", function () {
     return {
       blockNumber: block.number,
       blockTimestamp: new Date(block.timestamp * 1000).toLocaleString(),
+      snapshotDescription,
       assets,
     };
   }
@@ -434,19 +459,22 @@ describe("MainPool23", function () {
   // =========================================================================
 
   function writeIndexesCsv(snapshots: IndexSnapshot[]) {
-    const snapshotHeaders = snapshots.map((s, i) => `snapshot${i} (block ${s.blockNumber})`);
+    //const snapshotHeaders = snapshots.map((s, i) => `snapshot${i} (block ${s.blockNumber})`);
     //const header = `asset,metric,${snapshotHeaders.join(",")}`;
     //const rows: string[] = [header];
 
     const metrics: (keyof AssetIndexes)[] = [
       "liquidityIndex",
       "variableBorrowIndex",
+      "currentLiquidityRate",
+      "currentVariableBorrowRate",
+      "currentStableBorrowRate",
       "normalizedIncome",
       "normalizedVarDebt",
       "aTokenSupply",
       "vdTokenSupply",
     ];
-    const header = `snapshot,${metrics.join(",")}`;
+    const header = `snapshot,description,${metrics.join(",")}`;
     
     /*
     for (const asset of ASSETS) {
@@ -465,7 +493,7 @@ describe("MainPool23", function () {
       for (let i = 0; i < snapshots.length; i++) {
         const snap = snapshots[i];
         const values = metrics.map(metric => snap.assets[asset.symbol][metric]);
-        rows.push(`${i},${values.join(",")}`);
+        rows.push(`${i},${snap.snapshotDescription},${values.join(",")}`);
       }
 
       const filePath = path.join(OUTPUT_DIR, `indexes_${asset.symbol}.csv`);
