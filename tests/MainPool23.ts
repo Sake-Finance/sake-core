@@ -471,7 +471,7 @@ describe("MainPool23", function () {
     it("cannot supply while USDC is paused", async function () {
       let USDC = ASSETS[1].contract;
       await USDC.connect(user1).approve(poolProxy3.address, MaxUint256);
-      await expect(poolProxy3.connect(user1).supply(USDC.address, 1, user1.address, 0)).to.be.revertedWith('29')
+      await expect(poolProxy3.connect(user1)["supply(address,uint256,address,uint16)"](USDC.address, 1, user1.address, 0)).to.be.revertedWith('29')
     })
     it("timelock can unpause USDC", async function () {
       let tx = await poolConfigurator.connect(timelockSigner).setReservePause(ASSETS[1].address, false);
@@ -481,24 +481,31 @@ describe("MainPool23", function () {
     })
     it("get USDC for user1", async function () {
       let USDC = ASSETS[1].contract;
-      let supplyAmount = parseUnits("10", 6); // 10 USDC
-      let multisigBal = await USDC.balanceOf(MULTISIG_ADDRESS);
-      console.log(`multisig USDC balance: ${formatUnits(multisigBal, 6)}`);
-      expect(multisigBal).gte(supplyAmount);
-      await USDC.connect(multisigSigner).transfer(user1.address, supplyAmount);
+      let transferAmount = parseUnits("1", 6); // 1 USDC
+      let holderAddress = "0x680bfCbFa2C2DBeD8B25b94cC73C15EA338F5F38";
+      let holderBal = await USDC.balanceOf(holderAddress);
+      console.log(`USDC holder balance: ${formatUnits(holderBal, 6)}`);
+      expect(holderBal).gte(transferAmount);
+      await hre.network.provider.request({
+        method: "hardhat_impersonateAccount",
+        params: [holderAddress],
+      });
+      let holderSigner = provider.getSigner(holderAddress);
+      await hre.network.provider.send("hardhat_setBalance", [holderAddress, "0xDE0B6B3A7640000"]);
+      await USDC.connect(holderSigner).transfer(user1.address, transferAmount);
     })
     it("users can supply", async function () {
       let user = user1
       let asset = ASSETS[1]
       let USDC = asset.contract;
       let aUSDC = asset.aContract;
-      let supplyAmount = parseUnits("5", 6); // 5 USDC
+      let supplyAmount = parseUnits("0.5", 6); // 0.5 USDC
       // check pre-conditions
       expect(await USDC.balanceOf(user.address)).gte(supplyAmount);
       let bal0 = await aUSDC.balanceOf(user.address);
       // approve and supply
       await USDC.connect(user).approve(poolProxy3.address, MaxUint256);
-      let tx = await poolProxy3.connect(user).supply(USDC.address, supplyAmount, user.address, 0);
+      let tx = await poolProxy3.connect(user)["supply(address,uint256,address,uint16)"](USDC.address, supplyAmount, user.address, 0);
       // verify events
       await expect(tx).to.emit(USDC, "Transfer").withArgs(user.address, aUSDC.address, supplyAmount);
       await expect(tx).to.emit(poolProxy3, "Supply").withArgs(USDC.address, user.address, user.address, supplyAmount, 0);
@@ -509,7 +516,7 @@ describe("MainPool23", function () {
     it("users can deposit", async function () {
       let USDC = ASSETS[1].contract;
       let aUSDC = ASSETS[1].aContract;
-      let depositAmount = parseUnits("1", 6); // 1 USDC
+      let depositAmount = parseUnits("0.1", 6); // 0.1 USDC
       expect(await USDC.balanceOf(user1.address)).gte(depositAmount);
       let bal0 = await aUSDC.balanceOf(user1.address);
       let tx = await poolProxy3.connect(user1).deposit(USDC.address, depositAmount, user1.address, 0);
@@ -543,7 +550,7 @@ describe("MainPool23", function () {
       }
       // approve and repay
       await USDT.connect(user).approve(poolProxy3.address, MaxUint256);
-      let tx = await poolProxy3.connect(user).repay(USDT.address, amount, 2, userAddress);
+      let tx = await poolProxy3.connect(user)["repay(address,uint256,uint256,address)"](USDT.address, amount, 2, userAddress);
       // verify events
       await expect(tx).to.emit(USDT, "Transfer").withArgs(userAddress, aUSDT.address, amount);
       await expect(tx).to.emit(poolProxy3, "Repay").withArgs(USDT.address, userAddress, userAddress, amount, false);
@@ -570,25 +577,25 @@ describe("MainPool23", function () {
       expect(aBal0).gte(amount);
       let underlyingBal0 = await USDC.balanceOf(userAddress);
       // withdraw
-      let tx = await poolProxy3.connect(user).withdraw(USDC.address, amount, userAddress);
+      let tx = await poolProxy3.connect(user)["withdraw(address,uint256,address)"](USDC.address, amount, userAddress);
       // verify events
       await expect(tx).to.emit(USDC, "Transfer").withArgs(aUSDC.address, userAddress, amount);
       await expect(tx).to.emit(poolProxy3, "Withdraw").withArgs(USDC.address, userAddress, userAddress, amount);
-      // verify aToken balance decreased
+      // verify aToken balance decreased (allow ±2 rounding from interest accrual)
       let aBal1 = await aUSDC.balanceOf(userAddress);
-      expect(aBal1).eq(aBal0.sub(amount));
+      expect(aBal0.sub(aBal1).sub(amount).abs()).lte(2);
       // verify underlying balance increased
       let underlyingBal1 = await USDC.balanceOf(userAddress);
       expect(underlyingBal1).eq(underlyingBal0.add(amount));
     })
     it("users cannot borrow", async function () {
       await expect(
-        poolProxy3.connect(user1).borrow(ASSETS[0].address, 1, 2, 0, user1.address)
+        poolProxy3.connect(user1)["borrow(address,uint256,uint256,uint16,address)"](ASSETS[0].address, 1, 2, 0, user1.address)
       ).to.be.revertedWith("Borrows disabled")
     })
     it("users cannot liquidate", async function () {
       await expect(
-        poolProxy3.connect(user1).liquidationCall(ASSETS[0].address, ASSETS[1].address, user2.address, 1, false)
+        poolProxy3.connect(user1)["liquidationCall(address,address,address,uint256,bool)"](ASSETS[0].address, ASSETS[1].address, user2.address, 1, false)
       ).to.be.revertedWith("Liquidations disabled")
     })
     it("users cannot flash loan", async function () {
@@ -635,6 +642,236 @@ describe("MainPool23", function () {
       let tx = await addressProvider.connect(timelockSigner).setPoolImpl(poolImpl4.address);
       poolProxy4 = await ethers.getContractAt("MainPool4", MAIN_POOL_PROXY_ADDRESS);
     })
+    it("setRateZero does not exist on MainPool4", async function () {
+      // poolProxy3 has MainPool3 ABI which includes setRateZero
+      // After upgrading to MainPool4, the function selector won't match anything
+      await expect(poolProxy3.connect(rateSetter).setRateZero(ASSETS[0].address)).to.be.reverted;
+    })
+    it("get WETH for user1", async function () {
+      let WETH = ASSETS[0].contract;
+      let wrapAmount = parseUnits("10");
+      await user1.sendTransaction({ to: WETH.address, value: wrapAmount });
+      expect(await WETH.balanceOf(user1.address)).gte(wrapAmount);
+    })
+    // ---- Pool.sol signature tests (bracket notation to disambiguate from L2Pool bytes32 overloads) ----
+    it("users can supply WETH via Pool signature", async function () {
+      let user = user1;
+      let asset = ASSETS[0]; // WETH
+      let WETH = asset.contract;
+      let aWETH = asset.aContract;
+      let supplyAmount = parseUnits("5");
+      // check pre-conditions
+      expect(await WETH.balanceOf(user.address)).gte(supplyAmount);
+      let aBal0 = await aWETH.balanceOf(user.address);
+      let wethBal0 = await WETH.balanceOf(user.address);
+      // approve and supply
+      await WETH.connect(user).approve(poolProxy4.address, MaxUint256);
+      let tx = await poolProxy4.connect(user)["supply(address,uint256,address,uint16)"](WETH.address, supplyAmount, user.address, 0);
+      // verify events
+      await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, supplyAmount);
+      await expect(tx).to.emit(poolProxy4, "Supply").withArgs(WETH.address, user.address, user.address, supplyAmount, 0);
+      // verify balances (allow ±2 rounding from interest accrual)
+      let aBal1 = await aWETH.balanceOf(user.address);
+      expect(aBal1.sub(aBal0.add(supplyAmount)).abs()).lte(2);
+      let wethBal1 = await WETH.balanceOf(user.address);
+      expect(wethBal1).eq(wethBal0.sub(supplyAmount));
+    })
+    it("users can borrow WETH via Pool signature", async function () {
+      let user = user1;
+      let asset = ASSETS[0]; // WETH
+      let WETH = asset.contract;
+      let vdWETH = asset.vdContract;
+      let borrowAmount = parseUnits("0.1"); // 0.1 WETH
+      // check pre-conditions
+      let vdBal0 = await vdWETH.balanceOf(user.address);
+      let wethBal0 = await WETH.balanceOf(user.address);
+      // borrow (interestRateMode=2 for variable)
+      let tx = await poolProxy4.connect(user)["borrow(address,uint256,uint256,uint16,address)"](WETH.address, borrowAmount, 2, 0, user.address);
+      // verify events - borrowRate is 0 because zero IRM is set
+      await expect(tx).to.emit(poolProxy4, "Borrow").withArgs(WETH.address, user.address, user.address, borrowAmount, 2, 0, 0);
+      // verify balances
+      let vdBal1 = await vdWETH.balanceOf(user.address);
+      expect(vdBal1).eq(vdBal0.add(borrowAmount));
+      let wethBal1 = await WETH.balanceOf(user.address);
+      expect(wethBal1).eq(wethBal0.add(borrowAmount));
+    })
+    it("users can repay WETH via Pool signature", async function () {
+      let user = user1;
+      let asset = ASSETS[0]; // WETH
+      let WETH = asset.contract;
+      let aWETH = asset.aContract;
+      let vdWETH = asset.vdContract;
+      let repayAmount = parseUnits("0.1"); // 0.1 WETH
+      // check pre-conditions
+      let vdBal0 = await vdWETH.balanceOf(user.address);
+      expect(vdBal0).gte(repayAmount);
+      let wethBal0 = await WETH.balanceOf(user.address);
+      expect(wethBal0).gte(repayAmount);
+      // approve and repay
+      await WETH.connect(user).approve(poolProxy4.address, MaxUint256);
+      let tx = await poolProxy4.connect(user)["repay(address,uint256,uint256,address)"](WETH.address, repayAmount, 2, user.address);
+      // verify events
+      await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, repayAmount);
+      await expect(tx).to.emit(poolProxy4, "Repay").withArgs(WETH.address, user.address, user.address, repayAmount, false);
+      // verify balances
+      let vdBal1 = await vdWETH.balanceOf(user.address);
+      expect(vdBal1).eq(vdBal0.sub(repayAmount));
+      let wethBal1 = await WETH.balanceOf(user.address);
+      expect(wethBal1).eq(wethBal0.sub(repayAmount));
+    })
+    it("users can withdraw WETH via Pool signature", async function () {
+      let user = user1;
+      let asset = ASSETS[0]; // WETH
+      let WETH = asset.contract;
+      let aWETH = asset.aContract;
+      let withdrawAmount = parseUnits("1");
+      // check pre-conditions
+      let aBal0 = await aWETH.balanceOf(user.address);
+      expect(aBal0).gte(withdrawAmount);
+      let wethBal0 = await WETH.balanceOf(user.address);
+      // withdraw
+      let tx = await poolProxy4.connect(user)["withdraw(address,uint256,address)"](WETH.address, withdrawAmount, user.address);
+      // verify events
+      await expect(tx).to.emit(WETH, "Transfer").withArgs(aWETH.address, user.address, withdrawAmount);
+      await expect(tx).to.emit(poolProxy4, "Withdraw").withArgs(WETH.address, user.address, user.address, withdrawAmount);
+      // verify balances (allow ±2 rounding from interest accrual)
+      let aBal1 = await aWETH.balanceOf(user.address);
+      expect(aBal0.sub(aBal1).sub(withdrawAmount).abs()).lte(2);
+      let wethBal1 = await WETH.balanceOf(user.address);
+      expect(wethBal1).eq(wethBal0.add(withdrawAmount));
+    })
+    it("users can toggle collateral via Pool signature", async function () {
+      let user = user1;
+      let WETH = ASSETS[0].contract;
+      // disable WETH as collateral (safe since user1 has no outstanding borrows after repay)
+      let tx1 = await poolProxy4.connect(user)["setUserUseReserveAsCollateral(address,bool)"](WETH.address, false);
+      await expect(tx1).to.emit(poolProxy4, "ReserveUsedAsCollateralDisabled").withArgs(WETH.address, user.address);
+      // re-enable WETH as collateral
+      let tx2 = await poolProxy4.connect(user)["setUserUseReserveAsCollateral(address,bool)"](WETH.address, true);
+      await expect(tx2).to.emit(poolProxy4, "ReserveUsedAsCollateralEnabled").withArgs(WETH.address, user.address);
+    })
+    it("liquidation is not disabled", async function () {
+      // Call liquidationCall on user2 who has no debt
+      // Should revert with Aave error '45' (HEALTH_FACTOR_NOT_BELOW_THRESHOLD)
+      // NOT with "Liquidations disabled"
+      await expect(
+        poolProxy4.connect(user1)["liquidationCall(address,address,address,uint256,bool)"](ASSETS[0].address, ASSETS[1].address, user2.address, 1, false)
+      ).to.be.revertedWith('45');
+    })
+    it("flash loans are not disabled", async function () {
+      // flashLoanSimple has no bytes32 overload in L2Pool, so no disambiguation needed
+      // EOA receiver will revert (can't implement callback) but NOT with "Flash loans disabled"
+      await expect(
+        poolProxy4.connect(user1).flashLoanSimple(user2.address, ASSETS[0].address, 1, "0x", 0)
+      ).to.not.be.revertedWith("Flash loans disabled");
+    })
+    // ---- L2Pool bytes32 signature tests (calldata-optimized versions) ----
+    it("users can supply WETH via L2Pool bytes32", async function () {
+      let user = user1;
+      let asset = ASSETS[0]; // WETH
+      let WETH = asset.contract;
+      let aWETH = asset.aContract;
+      let supplyAmount = parseUnits("1");
+      // get reserve ID for encoding
+      let reserveData = await poolProxy4.getReserveData(WETH.address);
+      let assetId = reserveData.id;
+      let args = encodeSupplyArgs(assetId, supplyAmount, 0);
+      // check pre-conditions
+      expect(await WETH.balanceOf(user.address)).gte(supplyAmount);
+      let aBal0 = await aWETH.balanceOf(user.address);
+      let wethBal0 = await WETH.balanceOf(user.address);
+      // supply via bytes32 (uses msg.sender as onBehalfOf)
+      let tx = await poolProxy4.connect(user)["supply(bytes32)"](args);
+      // verify events
+      await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, supplyAmount);
+      await expect(tx).to.emit(poolProxy4, "Supply").withArgs(WETH.address, user.address, user.address, supplyAmount, 0);
+      // verify balances (allow ±2 rounding from interest accrual)
+      let aBal1 = await aWETH.balanceOf(user.address);
+      expect(aBal1.sub(aBal0.add(supplyAmount)).abs()).lte(2);
+      let wethBal1 = await WETH.balanceOf(user.address);
+      expect(wethBal1).eq(wethBal0.sub(supplyAmount));
+    })
+    it("users can borrow WETH via L2Pool bytes32", async function () {
+      let user = user1;
+      let asset = ASSETS[0]; // WETH
+      let WETH = asset.contract;
+      let vdWETH = asset.vdContract;
+      let borrowAmount = parseUnits("0.1"); // 0.1 WETH
+      // get reserve ID for encoding
+      let reserveData = await poolProxy4.getReserveData(WETH.address);
+      let assetId = reserveData.id;
+      let args = encodeBorrowArgs(assetId, borrowAmount, 2, 0);
+      // check pre-conditions
+      let vdBal0 = await vdWETH.balanceOf(user.address);
+      let wethBal0 = await WETH.balanceOf(user.address);
+      // borrow via bytes32 (uses msg.sender as onBehalfOf)
+      let tx = await poolProxy4.connect(user)["borrow(bytes32)"](args);
+      // verify events
+      await expect(tx).to.emit(poolProxy4, "Borrow").withArgs(WETH.address, user.address, user.address, borrowAmount, 2, 0, 0);
+      // verify balances
+      let vdBal1 = await vdWETH.balanceOf(user.address);
+      expect(vdBal1).eq(vdBal0.add(borrowAmount));
+      let wethBal1 = await WETH.balanceOf(user.address);
+      expect(wethBal1).eq(wethBal0.add(borrowAmount));
+    })
+    it("users can repay WETH via L2Pool bytes32", async function () {
+      let user = user1;
+      let asset = ASSETS[0]; // WETH
+      let WETH = asset.contract;
+      let aWETH = asset.aContract;
+      let vdWETH = asset.vdContract;
+      let repayAmount = parseUnits("0.1"); // 0.1 WETH
+      // get reserve ID for encoding
+      let reserveData = await poolProxy4.getReserveData(WETH.address);
+      let assetId = reserveData.id;
+      let args = encodeRepayArgs(assetId, repayAmount, 2);
+      // check pre-conditions
+      let vdBal0 = await vdWETH.balanceOf(user.address);
+      expect(vdBal0).gte(repayAmount);
+      let wethBal0 = await WETH.balanceOf(user.address);
+      expect(wethBal0).gte(repayAmount);
+      // repay via bytes32 (uses msg.sender as onBehalfOf)
+      let tx = await poolProxy4.connect(user)["repay(bytes32)"](args);
+      // verify events
+      await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, repayAmount);
+      await expect(tx).to.emit(poolProxy4, "Repay").withArgs(WETH.address, user.address, user.address, repayAmount, false);
+      // verify balances
+      let vdBal1 = await vdWETH.balanceOf(user.address);
+      expect(vdBal1).eq(vdBal0.sub(repayAmount));
+      let wethBal1 = await WETH.balanceOf(user.address);
+      expect(wethBal1).eq(wethBal0.sub(repayAmount));
+    })
+    it("users can withdraw WETH via L2Pool bytes32", async function () {
+      let user = user1;
+      let asset = ASSETS[0]; // WETH
+      let WETH = asset.contract;
+      let aWETH = asset.aContract;
+      let withdrawAmount = parseUnits("1");
+      // get reserve ID for encoding
+      let reserveData = await poolProxy4.getReserveData(WETH.address);
+      let assetId = reserveData.id;
+      let args = encodeWithdrawArgs(assetId, withdrawAmount);
+      // check pre-conditions
+      let aBal0 = await aWETH.balanceOf(user.address);
+      expect(aBal0).gte(withdrawAmount);
+      let wethBal0 = await WETH.balanceOf(user.address);
+      // withdraw via bytes32 (uses msg.sender as to)
+      let tx = await poolProxy4.connect(user)["withdraw(bytes32)"](args);
+      // verify events
+      await expect(tx).to.emit(WETH, "Transfer").withArgs(aWETH.address, user.address, withdrawAmount);
+      await expect(tx).to.emit(poolProxy4, "Withdraw").withArgs(WETH.address, user.address, user.address, withdrawAmount);
+      // verify balances (allow ±2 rounding from interest accrual)
+      let aBal1 = await aWETH.balanceOf(user.address);
+      expect(aBal0.sub(aBal1).sub(withdrawAmount).abs()).lte(2);
+      let wethBal1 = await WETH.balanceOf(user.address);
+      expect(wethBal1).eq(wethBal0.add(withdrawAmount));
+    })
+    it("get balances after MainPool4 operations", async function () {
+      balanceSnapshots.push(await getBalances());
+    })
+    it("get indexes after MainPool4 operations", async function () {
+      indexSnapshots.push(await getIndexes(poolProxy4, "after MainPool4 operations"));
+    })
   })
   describe("outputs", function () {
     it("write indexes CSV", async function () {
@@ -647,6 +884,34 @@ describe("MainPool23", function () {
       writeBalanceDiffsCsv(balanceSnapshots);
     })
   })
+
+  // =========================================================================
+  // L2Pool bytes32 encoding helpers (mirrors CalldataLogic.sol)
+  // =========================================================================
+
+  function encodeSupplyArgs(assetId: number, amount: any, referralCode: number): string {
+    return ethers.utils.hexZeroPad(
+      BN.from(assetId).or(BN.from(amount).shl(16)).or(BN.from(referralCode).shl(144)).toHexString(), 32
+    );
+  }
+
+  function encodeBorrowArgs(assetId: number, amount: any, interestRateMode: number, referralCode: number): string {
+    return ethers.utils.hexZeroPad(
+      BN.from(assetId).or(BN.from(amount).shl(16)).or(BN.from(interestRateMode).shl(144)).or(BN.from(referralCode).shl(152)).toHexString(), 32
+    );
+  }
+
+  function encodeRepayArgs(assetId: number, amount: any, interestRateMode: number): string {
+    return ethers.utils.hexZeroPad(
+      BN.from(assetId).or(BN.from(amount).shl(16)).or(BN.from(interestRateMode).shl(144)).toHexString(), 32
+    );
+  }
+
+  function encodeWithdrawArgs(assetId: number, amount: any): string {
+    return ethers.utils.hexZeroPad(
+      BN.from(assetId).or(BN.from(amount).shl(16)).toHexString(), 32
+    );
+  }
 
   // =========================================================================
   // Data collection
