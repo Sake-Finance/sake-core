@@ -367,6 +367,253 @@ describe("MainPool23", function () {
       let tx = await addressProvider.connect(timelockSigner).setPoolImpl(poolImpl3.address);
       poolProxy3 = await ethers.getContractAt("MainPool3", MAIN_POOL_PROXY_ADDRESS);
     })
+    /*
+    it("get pool interface", async function () {
+      //console.log(poolProxy3)
+      'ADDRESSES_PROVIDER()': [Function (anonymous)],
+      'BRIDGE_PROTOCOL_FEE()': [Function (anonymous)],
+      'FLASHLOAN_PREMIUM_TOTAL()': [Function (anonymous)],
+      'FLASHLOAN_PREMIUM_TO_PROTOCOL()': [Function (anonymous)],
+      'MAX_NUMBER_RESERVES()': [Function (anonymous)],
+      'MAX_STABLE_RATE_BORROW_SIZE_PERCENT()': [Function (anonymous)],
+      'POOL_REVISION()': [Function (anonymous)],
+      'backUnbacked(address,uint256,uint256)': [Function (anonymous)],
+      'borrow(address,uint256,uint256,uint16,address)': [Function (anonymous)],
+      'borrow(bytes32)': [Function (anonymous)],
+      'configureEModeCategory(uint8,(uint16,uint16,uint16,address,string))': [Function (anonymous)],
+      'deposit(address,uint256,address,uint16)': [Function (anonymous)],
+      'dropReserve(address)': [Function (anonymous)],
+      'finalizeTransfer(address,address,address,uint256,uint256,uint256)': [Function (anonymous)],
+      'flashLoan(address,address[],uint256[],uint256[],address,bytes,uint16)': [Function (anonymous)],
+      'flashLoanSimple(address,address,uint256,bytes,uint16)': [Function (anonymous)],
+      'getConfiguration(address)': [Function (anonymous)],
+      'getEModeCategoryData(uint8)': [Function (anonymous)],
+      'getReserveAddressById(uint16)': [Function (anonymous)],
+      'getReserveData(address)': [Function (anonymous)],
+      'getReserveNormalizedIncome(address)': [Function (anonymous)],
+      'getReserveNormalizedVariableDebt(address)': [Function (anonymous)],
+      'getReservesList()': [Function (anonymous)],
+      'getUserAccountData(address)': [Function (anonymous)],
+      'getUserConfiguration(address)': [Function (anonymous)],
+      'getUserEMode(address)': [Function (anonymous)],
+      'initReserve(address,address,address,address,address)': [Function (anonymous)],
+      'initialize(address)': [Function (anonymous)],
+      'liquidationCall(address,address,address,uint256,bool)': [Function (anonymous)],
+      'liquidationCall(bytes32,bytes32)': [Function (anonymous)],
+      'mintToTreasury(address[])': [Function (anonymous)],
+      'mintUnbacked(address,uint256,address,uint16)': [Function (anonymous)],
+      'rateZeroer()': [Function (anonymous)],
+      'rebalanceStableBorrowRate(bytes32)': [Function (anonymous)],
+      'rebalanceStableBorrowRate(address,address)': [Function (anonymous)],
+      'repay(bytes32)': [Function (anonymous)],
+      'repay(address,uint256,uint256,address)': [Function (anonymous)],
+      'repayWithATokens(address,uint256,uint256)': [Function (anonymous)],
+      'repayWithATokens(bytes32)': [Function (anonymous)],
+      'repayWithPermit(bytes32,bytes32,bytes32)': [Function (anonymous)],
+      'repayWithPermit(address,uint256,uint256,address,uint256,uint8,bytes32,bytes32)': [Function (anonymous)],
+      'rescueTokens(address,address,uint256)': [Function (anonymous)],
+      'resetIsolationModeTotalDebt(address)': [Function (anonymous)],
+      'setConfiguration(address,(uint256))': [Function (anonymous)],
+      'setRateZero(address)': [Function (anonymous)],
+      'setReserveInterestRateStrategyAddress(address,address)': [Function (anonymous)],
+      'setUserEMode(uint8)': [Function (anonymous)],
+      'setUserUseReserveAsCollateral(bytes32)': [Function (anonymous)],
+      'setUserUseReserveAsCollateral(address,bool)': [Function (anonymous)],
+      'supply(address,uint256,address,uint16)': [Function (anonymous)],
+      'supply(bytes32)': [Function (anonymous)],
+      'supplyWithPermit(address,uint256,address,uint16,uint256,uint8,bytes32,bytes32)': [Function (anonymous)],
+      'supplyWithPermit(bytes32,bytes32,bytes32)': [Function (anonymous)],
+      'swapBorrowRateMode(bytes32)': [Function (anonymous)],
+      'swapBorrowRateMode(address,uint256)': [Function (anonymous)],
+      'updateBridgeProtocolFee(uint256)': [Function (anonymous)],
+      'updateFlashloanPremiums(uint128,uint128)': [Function (anonymous)],
+      'withdraw(address,uint256,address)': [Function (anonymous)],
+      'withdraw(bytes32)': [Function (anonymous)],
+      ADDRESSES_PROVIDER: [Function (anonymous)],
+      BRIDGE_PROTOCOL_FEE: [Function (anonymous)],
+      FLASHLOAN_PREMIUM_TOTAL: [Function (anonymous)],
+      FLASHLOAN_PREMIUM_TO_PROTOCOL: [Function (anonymous)],
+      MAX_NUMBER_RESERVES: [Function (anonymous)],
+      MAX_STABLE_RATE_BORROW_SIZE_PERCENT: [Function (anonymous)],
+      POOL_REVISION: [Function (anonymous)],
+      backUnbacked: [Function (anonymous)],
+      configureEModeCategory: [Function (anonymous)],
+      deposit: [Function (anonymous)],
+      dropReserve: [Function (anonymous)],
+      finalizeTransfer: [Function (anonymous)],
+      flashLoan: [Function (anonymous)],
+      flashLoanSimple: [Function (anonymous)],
+      getConfiguration: [Function (anonymous)],
+      getEModeCategoryData: [Function (anonymous)],
+      getReserveAddressById: [Function (anonymous)],
+      getReserveData: [Function (anonymous)],
+      getReserveNormalizedIncome: [Function (anonymous)],
+      getReserveNormalizedVariableDebt: [Function (anonymous)],
+      getReservesList: [Function (anonymous)],
+      getUserAccountData: [Function (anonymous)],
+      getUserConfiguration: [Function (anonymous)],
+      getUserEMode: [Function (anonymous)],
+      initReserve: [Function (anonymous)],
+      initialize: [Function (anonymous)],
+      mintToTreasury: [Function (anonymous)],
+      mintUnbacked: [Function (anonymous)],
+      rateZeroer: [Function (anonymous)],
+      rescueTokens: [Function (anonymous)],
+      resetIsolationModeTotalDebt: [Function (anonymous)],
+      setConfiguration: [Function (anonymous)],
+      setRateZero: [Function (anonymous)],
+      setReserveInterestRateStrategyAddress: [Function (anonymous)],
+      setUserEMode: [Function (anonymous)],
+      updateBridgeProtocolFee: [Function (anonymous)],
+      updateFlashloanPremiums: [Function (anonymous)]
+    })
+    */
+    it("cannot supply while USDC is paused", async function () {
+      let USDC = ASSETS[1].contract;
+      await USDC.connect(user1).approve(poolProxy3.address, MaxUint256);
+      await expect(poolProxy3.connect(user1).supply(USDC.address, 1, user1.address, 0)).to.be.revertedWith('29')
+    })
+    it("timelock can unpause USDC", async function () {
+      let tx = await poolConfigurator.connect(timelockSigner).setReservePause(ASSETS[1].address, false);
+    })
+    it("timelock can unpause USDT", async function () {
+      let tx = await poolConfigurator.connect(timelockSigner).setReservePause(ASSETS[2].address, false);
+    })
+    it("get USDC for user1", async function () {
+      let USDC = ASSETS[1].contract;
+      let supplyAmount = parseUnits("10", 6); // 10 USDC
+      let multisigBal = await USDC.balanceOf(MULTISIG_ADDRESS);
+      console.log(`multisig USDC balance: ${formatUnits(multisigBal, 6)}`);
+      expect(multisigBal).gte(supplyAmount);
+      await USDC.connect(multisigSigner).transfer(user1.address, supplyAmount);
+    })
+    it("users can supply", async function () {
+      let user = user1
+      let asset = ASSETS[1]
+      let USDC = asset.contract;
+      let aUSDC = asset.aContract;
+      let supplyAmount = parseUnits("5", 6); // 5 USDC
+      // check pre-conditions
+      expect(await USDC.balanceOf(user.address)).gte(supplyAmount);
+      let bal0 = await aUSDC.balanceOf(user.address);
+      // approve and supply
+      await USDC.connect(user).approve(poolProxy3.address, MaxUint256);
+      let tx = await poolProxy3.connect(user).supply(USDC.address, supplyAmount, user.address, 0);
+      // verify events
+      await expect(tx).to.emit(USDC, "Transfer").withArgs(user.address, aUSDC.address, supplyAmount);
+      await expect(tx).to.emit(poolProxy3, "Supply").withArgs(USDC.address, user.address, user.address, supplyAmount, 0);
+      // verify balance increased
+      let bal1 = await aUSDC.balanceOf(user.address);
+      expect(bal1).eq(bal0.add(supplyAmount));
+    })
+    it("users can deposit", async function () {
+      let USDC = ASSETS[1].contract;
+      let aUSDC = ASSETS[1].aContract;
+      let depositAmount = parseUnits("1", 6); // 1 USDC
+      expect(await USDC.balanceOf(user1.address)).gte(depositAmount);
+      let bal0 = await aUSDC.balanceOf(user1.address);
+      let tx = await poolProxy3.connect(user1).deposit(USDC.address, depositAmount, user1.address, 0);
+      await expect(tx).to.emit(poolProxy3, "Supply").withArgs(USDC.address, user1.address, user1.address, depositAmount, 0);
+      let bal1 = await aUSDC.balanceOf(user1.address);
+      expect(bal1).eq(bal0.add(depositAmount));
+    })
+    it("users can repay", async function () {
+      let userAddress = "0x9E81B20E3255CdFAeBDA41d5dECBACd9fc6aE0a9"
+      await hre.network.provider.request({
+        method: "hardhat_impersonateAccount",
+        params: [userAddress],
+      });
+      let user = provider.getSigner(userAddress);
+      let asset = ASSETS[2] // USDT
+      let amount = "1000000" // 1 USDT
+      let USDT = asset.contract;
+      let aUSDT = asset.aContract;
+      let vdUSDT = asset.vdContract;
+      // fund gas for impersonated account
+      await user1.sendTransaction({ to: userAddress, value: WeiPerEther.mul(1), data: "0x" });
+      // check pre-conditions: user has variable debt
+      let debtBal0 = await vdUSDT.balanceOf(userAddress);
+      console.log(`user USDT debt before repay: ${formatUnits(debtBal0, 6)}`);
+      expect(debtBal0).gte(amount);
+      // ensure user has USDT to repay
+      let usdtBal = await USDT.balanceOf(userAddress);
+      console.log(`user USDT balance: ${formatUnits(usdtBal, 6)}`);
+      if (usdtBal.lt(amount)) {
+        await USDT.connect(multisigSigner).transfer(userAddress, amount);
+      }
+      // approve and repay
+      await USDT.connect(user).approve(poolProxy3.address, MaxUint256);
+      let tx = await poolProxy3.connect(user).repay(USDT.address, amount, 2, userAddress);
+      // verify events
+      await expect(tx).to.emit(USDT, "Transfer").withArgs(userAddress, aUSDT.address, amount);
+      await expect(tx).to.emit(poolProxy3, "Repay").withArgs(USDT.address, userAddress, userAddress, amount, false);
+      // verify debt decreased
+      let debtBal1 = await vdUSDT.balanceOf(userAddress);
+      expect(debtBal1).eq(debtBal0.sub(amount));
+    })
+    it("users can withdraw", async function () {
+      let userAddress = "0x78e25A7E0302319749469e37f3395340C848C32E"
+      await hre.network.provider.request({
+        method: "hardhat_impersonateAccount",
+        params: [userAddress],
+      });
+      let user = provider.getSigner(userAddress);
+      let asset = ASSETS[1] // USDC
+      let amount = "1000000" // 1 USDC
+      let USDC = asset.contract;
+      let aUSDC = asset.aContract;
+      // fund gas for impersonated account
+      await user1.sendTransaction({ to: userAddress, value: WeiPerEther.mul(1), data: "0x" });
+      // check pre-conditions: user has aUSDC
+      let aBal0 = await aUSDC.balanceOf(userAddress);
+      console.log(`user aUSDC balance before withdraw: ${formatUnits(aBal0, 6)}`);
+      expect(aBal0).gte(amount);
+      let underlyingBal0 = await USDC.balanceOf(userAddress);
+      // withdraw
+      let tx = await poolProxy3.connect(user).withdraw(USDC.address, amount, userAddress);
+      // verify events
+      await expect(tx).to.emit(USDC, "Transfer").withArgs(aUSDC.address, userAddress, amount);
+      await expect(tx).to.emit(poolProxy3, "Withdraw").withArgs(USDC.address, userAddress, userAddress, amount);
+      // verify aToken balance decreased
+      let aBal1 = await aUSDC.balanceOf(userAddress);
+      expect(aBal1).eq(aBal0.sub(amount));
+      // verify underlying balance increased
+      let underlyingBal1 = await USDC.balanceOf(userAddress);
+      expect(underlyingBal1).eq(underlyingBal0.add(amount));
+    })
+    it("users cannot borrow", async function () {
+      await expect(
+        poolProxy3.connect(user1).borrow(ASSETS[0].address, 1, 2, 0, user1.address)
+      ).to.be.revertedWith("Borrows disabled")
+    })
+    it("users cannot liquidate", async function () {
+      await expect(
+        poolProxy3.connect(user1).liquidationCall(ASSETS[0].address, ASSETS[1].address, user2.address, 1, false)
+      ).to.be.revertedWith("Liquidations disabled")
+    })
+    it("users cannot flash loan", async function () {
+      await expect(
+        poolProxy3.connect(user1).flashLoan(user2.address, [], [], [], user3.address, "0x", 0)
+      ).to.be.revertedWith("Flash loans disabled")
+      await expect(
+        poolProxy3.connect(user1).flashLoanSimple(user2.address, ASSETS[0].address, 1, "0x", 0)
+      ).to.be.revertedWith("Flash loans disabled")
+    })
+    it("non rate setter cannot zero rates", async function () {
+      await expect(poolProxy3.connect(user1).setRateZero(ASSETS[0].address)).to.be.revertedWith("Unauthorized")
+    })
+    it("rate setter can zero rates", async function () {
+      await poolProxy3.connect(rateSetter).setRateZero(ASSETS[0].address);
+      let reserveData = await poolProxy3.getReserveData(ASSETS[0].address);
+      expect(reserveData.currentLiquidityRate).eq(0);
+      expect(reserveData.currentVariableBorrowRate).eq(0);
+    })
+    it("get balances after MainPool3 operations", async function () {
+      balanceSnapshots.push(await getBalances());
+    })
+    it("get indexes after MainPool3 operations", async function () {
+      indexSnapshots.push(await getIndexes(poolProxy3, "after MainPool3 operations"));
+    })
   })
   describe("MainPool4", function () {
     it("deploy MainPool4 implementation", async function () {
