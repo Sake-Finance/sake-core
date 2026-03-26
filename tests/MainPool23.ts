@@ -1024,48 +1024,48 @@ describe("MainPool23", function () {
   }
 
   function writeBalancesCsv(snapshots: BalanceSnapshot[]) {
-    const header = "snapshot,user,asset,underlying,aToken,vdToken";
-    const rows: string[] = [header];
+    const header = "asset,snapshot,underlying,aToken,vdToken";
 
-    for (let i = 0; i < snapshots.length; i++) {
-      const snap = snapshots[i];
-      for (const userAddr of users) {
-        for (const asset of ASSETS) {
-          const b = snap.users[userAddr][asset.symbol];
-          rows.push(`${i},${userAddr},${asset.symbol},${formatUnits(b.underlying, asset.decimals)},${formatUnits(b.aToken, asset.decimals)},${formatUnits(b.vdToken, asset.decimals)}`);
+    for (let u = 0; u < users.length; u++) {
+      const userAddr = users[u];
+      const rows: string[] = [header];
+
+      for (const asset of ASSETS) {
+        for (let i = 0; i < snapshots.length; i++) {
+          const b = snapshots[i].users[userAddr][asset.symbol];
+          rows.push(`${asset.symbol},${i},${formatUnits(b.underlying, asset.decimals)},${formatUnits(b.aToken, asset.decimals)},${formatUnits(b.vdToken, asset.decimals)}`);
         }
       }
-    }
 
-    const filePath = path.join(OUTPUT_DIR, "balances.csv");
-    fs.writeFileSync(filePath, rows.join("\n") + "\n");
-    console.log(`Wrote ${filePath}`);
+      const filePath = path.join(OUTPUT_DIR, `balances_${u}.csv`);
+      fs.writeFileSync(filePath, rows.join("\n") + "\n");
+      console.log(`Wrote ${filePath} (user ${userAddr})`);
+    }
   }
 
   function writeBalanceDiffsCsv(snapshots: BalanceSnapshot[]) {
-    const header = "transition,user,asset,aToken_before,aToken_after,aToken_diff,vdToken_before,vdToken_after,vdToken_diff";
-    const rows: string[] = [header];
+    const header = "asset,transition,aToken_before,aToken_after,aToken_diff,vdToken_before,vdToken_after,vdToken_diff";
 
-    for (let i = 1; i < snapshots.length; i++) {
-      const before = snapshots[i - 1];
-      const after = snapshots[i];
-      const label = `${i - 1}->${i}`;
+    for (let u = 0; u < users.length; u++) {
+      const userAddr = users[u];
+      const rows: string[] = [header];
 
-      for (const userAddr of users) {
-        for (const asset of ASSETS) {
-          const bBefore = before.users[userAddr][asset.symbol];
-          const bAfter = after.users[userAddr][asset.symbol];
+      for (const asset of ASSETS) {
+        for (let i = 1; i < snapshots.length; i++) {
+          const bBefore = snapshots[i - 1].users[userAddr][asset.symbol];
+          const bAfter = snapshots[i].users[userAddr][asset.symbol];
           const aDiff = bAfter.aToken.sub(bBefore.aToken);
           const vdDiff = bAfter.vdToken.sub(bBefore.vdToken);
+          const label = `${i - 1}->${i}`;
 
-          rows.push(`${label},${userAddr},${asset.symbol},${formatUnits(bBefore.aToken, asset.decimals)},${formatUnits(bAfter.aToken, asset.decimals)},${formatUnits(aDiff, asset.decimals)},${formatUnits(bBefore.vdToken, asset.decimals)},${formatUnits(bAfter.vdToken, asset.decimals)},${formatUnits(vdDiff, asset.decimals)}`);
+          rows.push(`${asset.symbol},${label},${formatUnits(bBefore.aToken, asset.decimals)},${formatUnits(bAfter.aToken, asset.decimals)},${formatUnits(aDiff, asset.decimals)},${formatUnits(bBefore.vdToken, asset.decimals)},${formatUnits(bAfter.vdToken, asset.decimals)},${formatUnits(vdDiff, asset.decimals)}`);
         }
       }
-    }
 
-    const filePath = path.join(OUTPUT_DIR, "balance_diffs.csv");
-    fs.writeFileSync(filePath, rows.join("\n") + "\n");
-    console.log(`Wrote ${filePath}`);
+      const filePath = path.join(OUTPUT_DIR, `balance_diffs_${u}.csv`);
+      fs.writeFileSync(filePath, rows.join("\n") + "\n");
+      console.log(`Wrote ${filePath} (user ${userAddr})`);
+    }
   }
 
   // =========================================================================
