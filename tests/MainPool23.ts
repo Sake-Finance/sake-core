@@ -20,6 +20,7 @@ const POOL_CONFIGURATOR_ADDRESS = "0xaB9Cf2CEae8D559097e99e28E89A053c8Bca1a81";
 const TIMELOCK_ADDRESS = "0xAF4c640E8e15Ff2cd7fB7645Ddd9861882cFeC28"; // also owner of address provider
 const MULTISIG_ADDRESS = "0x7Bdf000CA60120429CBBAaB2C5f30471C6FdE12e";
 const ZERO_IRM_ADDRESS = "0x189EBCA84598b3F68BbAe696F251C99549a5d479";
+const ZERO_IRM_ADDRESS_SONE = "0xD4DDd667B58De5dfAef2754885fBd58a87bCD06E";
 
 const BORROW_LOGIC       = "0x545541a451471A26d1fF29c9821D0ea97325f10E";
 const BRIDGE_LOGIC       = "0x4E041B5019CeD3479A35f6C1AD29f81d1cE70109";
@@ -48,15 +49,10 @@ const ASSETS = [
 
 let users = [ // some users to check balances
 "0x78e25A7E0302319749469e37f3395340C848C32E",
-"0x4acc24595C589f6790EB80909FaD67A276C06AF9",
-"0x8D26F3b93bA28DAB2670af3283E1F1cF594d430a",
-"0xCe8a3B66C5509E7be0f65485f95b69159DA870e4",
-"0x2450686BCD03E91bD67c23624F9f8d92fD1c1222",
-"0x00A5d5925eE03a251c2801a3bac66bFa3033394b",
-"0xaBD892dd47D1497Fa76B77413eE3C56890bd00CC",
-"0x129DdF9c3958D5ae6A5A61a40110bEB8D7ca8E7d",
-"0xc521cDc630b7B72ABA9aDD22545181189ab91F78",
-"0xe72555D0c3c9FaEbf34cCB9837b3027002e27730",
+"0x92813fD0a482cfAD104F8A541cdc0f8Ac0AdB5Dc",
+"0x49A73fBF16dFEad50c04dDAcb949d4e7022d55bB",
+"0x298490db4080b02260a164643caaE1Fa0C380091",
+"0x97B386BD2033c486AC60D346037c87DDA9c3012a",
 ]
 
 const OUTPUT_DIR = path.join(__dirname, "output");
@@ -166,6 +162,7 @@ describe("MainPool23", function () {
       await expectDeployed(TIMELOCK_ADDRESS);
       await expectDeployed(MULTISIG_ADDRESS);
       await expectDeployed(ZERO_IRM_ADDRESS);
+      await expectDeployed(ZERO_IRM_ADDRESS_SONE);
 
       await expectDeployed(BORROW_LOGIC);
       await expectDeployed(BRIDGE_LOGIC);
@@ -193,8 +190,8 @@ describe("MainPool23", function () {
     it("get block number", async function () {
       var blockNumber = await provider.getBlockNumber();
       console.log(`blockNumber ${blockNumber}`);
-      if(blockNumber != 20643802) {
-        throw new Error(`Wrong block number. Run this test using this command:\nMARKET_NAME=soneium FORK=soneium FORK_BLOCK_NUMBER=20643800 npx hardhat test ./tests/MainPool23.ts`)
+      if(blockNumber != 20680302) {
+        throw new Error(`Wrong block number. Run this test using this command:\nMARKET_NAME=soneium FORK=soneium FORK_BLOCK_NUMBER=20680300 npx hardhat test ./tests/MainPool23.ts`)
       }
     })
     it("get balances before upgrade", async function () {
@@ -246,13 +243,18 @@ describe("MainPool23", function () {
         let reserveData = await poolProxy2.getReserveData(asset.address);
         let oldRateStrategyAddress = reserveData.interestRateStrategyAddress;
         console.log(`asset ${asset.symbol} oldRateStrategyAddress ${oldRateStrategyAddress}`)
-        let tx = await poolConfigurator.connect(timelockSigner).setReserveInterestRateStrategyAddress(asset.address, ZERO_IRM_ADDRESS);
-        await expect(tx).to.emit(poolConfigurator, "ReserveInterestRateStrategyChanged").withArgs(asset.address, oldRateStrategyAddress, ZERO_IRM_ADDRESS);
+        let newRateStrategyAddress = ZERO_IRM_ADDRESS;
+        if(asset.symbol == "SONE") newRateStrategyAddress = ZERO_IRM_ADDRESS_SONE;
+        let tx = await poolConfigurator.connect(timelockSigner).setReserveInterestRateStrategyAddress(asset.address, newRateStrategyAddress);
+        await expect(tx).to.emit(poolConfigurator, "ReserveInterestRateStrategyChanged").withArgs(asset.address, oldRateStrategyAddress, newRateStrategyAddress);
       }
     })
     it("can zero current interest rates", async function () {
       for (const asset of ASSETS) {
         await poolProxy2.connect(rateSetter).setRateZero(asset.address);
+        let reserveData = await poolProxy2.getReserveData(asset.address);
+        expect(reserveData.currentLiquidityRate).eq(0);
+        expect(reserveData.currentVariableBorrowRate).eq(0);
       }
     })
     it("get balances after upgrade and zeroed", async function () {
@@ -581,7 +583,7 @@ describe("MainPool23", function () {
       // verify events
       await expect(tx).to.emit(USDC, "Transfer").withArgs(aUSDC.address, userAddress, amount);
       await expect(tx).to.emit(poolProxy3, "Withdraw").withArgs(USDC.address, userAddress, userAddress, amount);
-      // verify aToken balance decreased (allow ±2 rounding from interest accrual)
+      // verify aToken balance decreased (±2 from ray math rounding, not interest accrual)
       let aBal1 = await aUSDC.balanceOf(userAddress);
       expect(aBal0.sub(aBal1).sub(amount).abs()).lte(2);
       // verify underlying balance increased
@@ -670,7 +672,7 @@ describe("MainPool23", function () {
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, supplyAmount);
       await expect(tx).to.emit(poolProxy4, "Supply").withArgs(WETH.address, user.address, user.address, supplyAmount, 0);
-      // verify balances (allow ±2 rounding from interest accrual)
+      // verify balances (±2 from ray math rounding, not interest accrual)
       let aBal1 = await aWETH.balanceOf(user.address);
       expect(aBal1.sub(aBal0.add(supplyAmount)).abs()).lte(2);
       let wethBal1 = await WETH.balanceOf(user.address);
@@ -734,7 +736,7 @@ describe("MainPool23", function () {
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(aWETH.address, user.address, withdrawAmount);
       await expect(tx).to.emit(poolProxy4, "Withdraw").withArgs(WETH.address, user.address, user.address, withdrawAmount);
-      // verify balances (allow ±2 rounding from interest accrual)
+      // verify balances (±2 from ray math rounding, not interest accrual)
       let aBal1 = await aWETH.balanceOf(user.address);
       expect(aBal0.sub(aBal1).sub(withdrawAmount).abs()).lte(2);
       let wethBal1 = await WETH.balanceOf(user.address);
@@ -785,7 +787,7 @@ describe("MainPool23", function () {
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, supplyAmount);
       await expect(tx).to.emit(poolProxy4, "Supply").withArgs(WETH.address, user.address, user.address, supplyAmount, 0);
-      // verify balances (allow ±2 rounding from interest accrual)
+      // verify balances (±2 from ray math rounding, not interest accrual)
       let aBal1 = await aWETH.balanceOf(user.address);
       expect(aBal1.sub(aBal0.add(supplyAmount)).abs()).lte(2);
       let wethBal1 = await WETH.balanceOf(user.address);
@@ -860,11 +862,18 @@ describe("MainPool23", function () {
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(aWETH.address, user.address, withdrawAmount);
       await expect(tx).to.emit(poolProxy4, "Withdraw").withArgs(WETH.address, user.address, user.address, withdrawAmount);
-      // verify balances (allow ±2 rounding from interest accrual)
+      // verify balances (±2 from ray math rounding, not interest accrual)
       let aBal1 = await aWETH.balanceOf(user.address);
       expect(aBal0.sub(aBal1).sub(withdrawAmount).abs()).lte(2);
       let wethBal1 = await WETH.balanceOf(user.address);
       expect(wethBal1).eq(wethBal0.add(withdrawAmount));
+    })
+    it("interest rates are still zero after MainPool4 operations", async function () {
+      for (const asset of ASSETS) {
+        let reserveData = await poolProxy4.getReserveData(asset.address);
+        expect(reserveData.currentLiquidityRate).eq(0);
+        expect(reserveData.currentVariableBorrowRate).eq(0);
+      }
     })
     it("get balances after MainPool4 operations", async function () {
       balanceSnapshots.push(await getBalances());
