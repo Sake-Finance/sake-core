@@ -280,6 +280,25 @@ describe("MainPool23", function () {
     it("get indexes after upgrade and zeroed", async function () {
       indexSnapshots.push(await getIndexes(poolProxy2, "after upgrade and zeroed"));
     })
+    it("indexes do not grow after rate zeroing", async function () {
+      // snapshot indexes before time travel
+      let incomesBefore: any[] = [];
+      let debtsBefore: any[] = [];
+      for (const asset of ASSETS) {
+        incomesBefore.push(await poolProxy2.getReserveNormalizedIncome(asset.address));
+        debtsBefore.push(await poolProxy2.getReserveNormalizedVariableDebt(asset.address));
+      }
+      // advance 1 day
+      await hre.network.provider.send("evm_increaseTime", [86400]);
+      await hre.network.provider.send("evm_mine", []);
+      // verify indexes unchanged
+      for (let i = 0; i < ASSETS.length; i++) {
+        let incomeAfter = await poolProxy2.getReserveNormalizedIncome(ASSETS[i].address);
+        let debtAfter = await poolProxy2.getReserveNormalizedVariableDebt(ASSETS[i].address);
+        expect(incomeAfter).eq(incomesBefore[i], `${ASSETS[i].symbol} normalizedIncome grew after rate zeroing`);
+        expect(debtAfter).eq(debtsBefore[i], `${ASSETS[i].symbol} normalizedVarDebt grew after rate zeroing`);
+      }
+    })
     it("cannot revert to previous implementation", async function () {
       await expect(addressProvider.connect(timelockSigner).setPoolImpl(MAIN_POOL_IMPLEMENTATION_ADDRESS)).to.be.reverted;
     })
@@ -293,6 +312,25 @@ describe("MainPool23", function () {
       await expect(poolProxy2.connect(user1).flashLoan(user2.address, [], [], [], user3.address, "0x", 0)).to.be.revertedWith("Flash loans disabled")
       await expect(poolProxy2.connect(user1).flashLoanSimple(user2.address, ASSETS[0].address, 1, "0x", 0)).to.be.revertedWith("Flash loans disabled")
       await expect(poolProxy2.connect(user1).deposit(ASSETS[0].address, 1, user2.address, 0)).to.be.revertedWith("Deposits disabled")
+    })
+    it("setUserUseReserveAsCollateral blocked by pause", async function () {
+      // Impersonate a real user who has aUSDC on the fork (USDC is paused during MainPool2)
+      // Validation order: userBalance != 0 (43) → isActive → !isPaused (29)
+      // So we need a user with non-zero aToken balance to reach the pause check
+      let holderAddress = "0x78e25A7E0302319749469e37f3395340C848C32E";
+      await hre.network.provider.request({
+        method: "hardhat_impersonateAccount",
+        params: [holderAddress],
+      });
+      let holder = provider.getSigner(holderAddress);
+      await user1.sendTransaction({ to: holderAddress, value: WeiPerEther.mul(1), data: "0x" });
+      // confirm this user has aUSDC
+      let aUSDC = ASSETS[1].aContract;
+      expect(await aUSDC.balanceOf(holderAddress)).gt(0);
+      // USDC is paused, so setUserUseReserveAsCollateral should revert with error 29 (RESERVE_PAUSED)
+      await expect(
+        poolProxy2.connect(holder).setUserUseReserveAsCollateral(ASSETS[1].address, false)
+      ).to.be.revertedWith('29')
     })
     it("non repairer cannot supply or repay", async function () {
       //console.log(ASSETS[0].address, 1, user2.address, 0)
@@ -406,6 +444,22 @@ describe("MainPool23", function () {
             `${asset.symbol} vdToken changed for ${userAddr}`
           );
         }
+      }
+    })
+    it("indexes unchanged after MainPool3 upgrade", async function () {
+      let previous = indexSnapshots[indexSnapshots.length - 1];
+      for (const asset of ASSETS) {
+        let reserveData = await poolProxy3.getReserveData(asset.address);
+        expect(reserveData.liquidityIndex).eq(
+          previous.assets[asset.symbol].liquidityIndex,
+          `${asset.symbol} liquidityIndex changed after MainPool3 upgrade`
+        );
+        expect(reserveData.variableBorrowIndex).eq(
+          previous.assets[asset.symbol].variableBorrowIndex,
+          `${asset.symbol} variableBorrowIndex changed after MainPool3 upgrade`
+        );
+        expect(reserveData.currentLiquidityRate).eq(0, `${asset.symbol} liquidityRate not zero after MainPool3 upgrade`);
+        expect(reserveData.currentVariableBorrowRate).eq(0, `${asset.symbol} variableBorrowRate not zero after MainPool3 upgrade`);
       }
     })
     /*
@@ -666,6 +720,35 @@ describe("MainPool23", function () {
       let usdcBal1 = await USDC.balanceOf(user.address);
       expect(usdcBal1).eq(usdcBal0.add(withdrawAmount));
     })
+    it("users can repay USDT via L2Pool bytes32", async function () {
+      let userAddress = "0x9E81B20E3255CdFAeBDA41d5dECBACd9fc6aE0a9"
+      let user = provider.getSigner(userAddress);
+      let asset = ASSETS[2] // USDT
+      let USDT = asset.contract;
+      let aUSDT = asset.aContract;
+      let vdUSDT = asset.vdContract;
+      let repayAmount = "500000" // 0.5 USDT
+      // check pre-conditions: user has variable debt
+      let debtBal0 = await vdUSDT.balanceOf(userAddress);
+      expect(debtBal0).gte(repayAmount);
+      // ensure user has USDT to repay
+      let usdtBal = await USDT.balanceOf(userAddress);
+      if (usdtBal.lt(repayAmount)) {
+        await USDT.connect(multisigSigner).transfer(userAddress, repayAmount);
+      }
+      // approve and repay via bytes32
+      await USDT.connect(user).approve(poolProxy3.address, MaxUint256);
+      let reserveData = await poolProxy3.getReserveData(USDT.address);
+      let assetId = reserveData.id;
+      let args = encodeRepayArgs(assetId, repayAmount, 2);
+      let tx = await poolProxy3.connect(user)["repay(bytes32)"](args);
+      // verify events
+      await expect(tx).to.emit(USDT, "Transfer").withArgs(userAddress, aUSDT.address, repayAmount);
+      await expect(tx).to.emit(poolProxy3, "Repay").withArgs(USDT.address, userAddress, userAddress, repayAmount, false);
+      // verify debt decreased (±2 from ray math rounding)
+      let debtBal1 = await vdUSDT.balanceOf(userAddress);
+      expect(debtBal0.sub(repayAmount).sub(debtBal1).abs()).lte(2);
+    })
     it("users cannot borrow via L2Pool bytes32", async function () {
       let reserveData = await poolProxy3.getReserveData(ASSETS[0].address);
       let assetId = reserveData.id;
@@ -680,6 +763,17 @@ describe("MainPool23", function () {
     it("users cannot liquidate", async function () {
       await expect(
         poolProxy3.connect(user1)["liquidationCall(address,address,address,uint256,bool)"](ASSETS[0].address, ASSETS[1].address, user2.address, 1, false)
+      ).to.be.revertedWith("Liquidations disabled")
+    })
+    it("users cannot liquidate via L2Pool bytes32", async function () {
+      let reserveData0 = await poolProxy3.getReserveData(ASSETS[0].address);
+      let reserveData1 = await poolProxy3.getReserveData(ASSETS[1].address);
+      let collateralAssetId = reserveData0.id;
+      let debtAssetId = reserveData1.id;
+      let args1 = encodeLiquidationCallArgs1(collateralAssetId, debtAssetId, user2.address);
+      let args2 = encodeLiquidationCallArgs2(1, false);
+      await expect(
+        poolProxy3.connect(user1)["liquidationCall(bytes32,bytes32)"](args1, args2)
       ).to.be.revertedWith("Liquidations disabled")
     })
     it("users cannot flash loan", async function () {
@@ -746,6 +840,22 @@ describe("MainPool23", function () {
             `${asset.symbol} vdToken changed for ${userAddr}`
           );
         }
+      }
+    })
+    it("indexes unchanged after MainPool4 upgrade", async function () {
+      let previous = indexSnapshots[indexSnapshots.length - 1];
+      for (const asset of ASSETS) {
+        let reserveData = await poolProxy4.getReserveData(asset.address);
+        expect(reserveData.liquidityIndex).eq(
+          previous.assets[asset.symbol].liquidityIndex,
+          `${asset.symbol} liquidityIndex changed after MainPool4 upgrade`
+        );
+        expect(reserveData.variableBorrowIndex).eq(
+          previous.assets[asset.symbol].variableBorrowIndex,
+          `${asset.symbol} variableBorrowIndex changed after MainPool4 upgrade`
+        );
+        expect(reserveData.currentLiquidityRate).eq(0, `${asset.symbol} liquidityRate not zero after MainPool4 upgrade`);
+        expect(reserveData.currentVariableBorrowRate).eq(0, `${asset.symbol} variableBorrowRate not zero after MainPool4 upgrade`);
       }
     })
     it("setRateZero does not exist on MainPool4", async function () {
@@ -1035,6 +1145,20 @@ describe("MainPool23", function () {
   function encodeWithdrawArgs(assetId: number, amount: any): string {
     return ethers.utils.hexZeroPad(
       BN.from(assetId).or(BN.from(amount).shl(16)).toHexString(), 32
+    );
+  }
+
+  // args1: collateralAssetId (bits 0-15) | debtAssetId (bits 16-31) | user (bits 32-191)
+  function encodeLiquidationCallArgs1(collateralAssetId: number, debtAssetId: number, user: string): string {
+    return ethers.utils.hexZeroPad(
+      BN.from(collateralAssetId).or(BN.from(debtAssetId).shl(16)).or(BN.from(user).shl(32)).toHexString(), 32
+    );
+  }
+
+  // args2: debtToCover (bits 0-127) | receiveAToken (bit 128)
+  function encodeLiquidationCallArgs2(debtToCover: any, receiveAToken: boolean): string {
+    return ethers.utils.hexZeroPad(
+      BN.from(debtToCover).or(BN.from(receiveAToken ? 1 : 0).shl(128)).toHexString(), 32
     );
   }
 
