@@ -37,6 +37,10 @@ contract MainPool3 is L2Pool {
   function getRevision() internal pure virtual override returns (uint256) {
     return 3;
   }
+
+  function poolRevision() public pure returns (uint256) {
+    return 3;
+  }
   
   function borrow(
     address asset,

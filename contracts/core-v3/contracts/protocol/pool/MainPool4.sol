@@ -22,4 +22,8 @@ contract MainPool4 is L2Pool {
   function getRevision() internal pure virtual override returns (uint256) {
     return 4;
   }
+
+  function poolRevision() public pure returns (uint256) {
+    return 4;
+  }
 }

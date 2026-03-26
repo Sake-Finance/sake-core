@@ -2,7 +2,7 @@
 pragma solidity ^0.8.10;
 
 import {Errors} from '../libraries/helpers/Errors.sol';
-import {L2Pool} from './L2Pool.sol';
+import {Pool} from './Pool.sol';
 import {IPoolAddressesProvider} from '../../interfaces/IPoolAddressesProvider.sol';
 
 
@@ -11,13 +11,14 @@ import {IPoolAddressesProvider} from '../../interfaces/IPoolAddressesProvider.so
  * @author SakeFinance
  * @notice
  */
-contract MainPool2 is L2Pool {
+contract MainPool2 is Pool {
 
   address public immutable rateZeroer;
   address public immutable repairer;
 
-  constructor(IPoolAddressesProvider provider, address zeroer) L2Pool(provider) {
+  constructor(IPoolAddressesProvider provider, address zeroer, address _repairer) Pool(provider) {
     rateZeroer = zeroer;
+    repairer = _repairer;
   }
 
   function setRateZero(address asset) external {
@@ -36,6 +37,10 @@ contract MainPool2 is L2Pool {
   }
 
   function getRevision() internal pure virtual override returns (uint256) {
+    return 2;
+  }
+
+  function poolRevision() public pure returns (uint256) {
     return 2;
   }
 
