@@ -7,12 +7,12 @@ import {IPoolAddressesProvider} from '../../interfaces/IPoolAddressesProvider.so
 
 
 /**
- * @title MainPool4
+ * @title MainPool5
  * @author SakeFinance
- * @notice 
+ * @notice
  */
-contract MainPool4 is L2Pool {
-  
+contract MainPool5 is L2Pool {
+
   constructor(IPoolAddressesProvider provider) L2Pool(provider) {}
 
   function initialize(IPoolAddressesProvider provider) external virtual override initializer {
@@ -20,10 +20,10 @@ contract MainPool4 is L2Pool {
   }
 
   function getRevision() internal pure virtual override returns (uint256) {
-    return 4;
+    return 5;
   }
 
   function poolRevision() public pure returns (uint256) {
-    return 4;
+    return 5;
   }
 }

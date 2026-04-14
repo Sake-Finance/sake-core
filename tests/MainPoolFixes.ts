@@ -102,11 +102,11 @@ describe("MainPoolFixes", function () {
   let poolProxy1: any; // proxy with original L2Pool
   let poolProxy2: any; // proxy with MainPool2
   let poolProxy3: any; // proxy with MainPool3
-  let poolProxy4: any; // proxy with MainPool4
+  let poolProxy5: any; // proxy with MainPool5
 
   let poolImpl2: any; // MainPool2 impl
   let poolImpl3: any; // MainPool3 impl
-  let poolImpl4: any; // MainPool4 impl
+  let poolImpl5: any; // MainPool5 impl
 
   let addressProvider: any;
   let poolConfigurator: any;
@@ -800,8 +800,8 @@ describe("MainPoolFixes", function () {
       indexSnapshots.push(await getIndexes(poolProxy3, "after MainPool3 operations"));
     })
   })
-  describe("MainPool4", function () {
-    it("deploy MainPool4 implementation", async function () {
+  describe("MainPool5", function () {
+    it("deploy MainPool5 implementation", async function () {
       let libraries = {
         "BorrowLogic": BORROW_LOGIC,
         "BridgeLogic": BRIDGE_LOGIC,
@@ -811,22 +811,22 @@ describe("MainPoolFixes", function () {
         "PoolLogic": POOL_LOGIC,
         "SupplyLogic": SUPPLY_LOGIC,
       }
-      let poolZeroFactory = await ethers.getContractFactory("MainPool4", { libraries });
-      poolImpl4 = await poolZeroFactory.deploy(ADDRESS_PROVIDER_ADDRESS);
-      await poolImpl4.deployed();
-      expect(await poolImpl4.ADDRESSES_PROVIDER()).eq(ADDRESS_PROVIDER_ADDRESS);
+      let poolZeroFactory = await ethers.getContractFactory("MainPool5", { libraries });
+      poolImpl5 = await poolZeroFactory.deploy(ADDRESS_PROVIDER_ADDRESS);
+      await poolImpl5.deployed();
+      expect(await poolImpl5.ADDRESSES_PROVIDER()).eq(ADDRESS_PROVIDER_ADDRESS);
     })
-    it("can use timelock signer to upgrade to implementation 4", async function () {
-      let tx = await addressProvider.connect(timelockSigner).setPoolImpl(poolImpl4.address);
-      poolProxy4 = await ethers.getContractAt("MainPool4", MAIN_POOL_PROXY_ADDRESS);
+    it("can use timelock signer to upgrade to implementation 5", async function () {
+      let tx = await addressProvider.connect(timelockSigner).setPoolImpl(poolImpl5.address);
+      poolProxy5 = await ethers.getContractAt("MainPool5", MAIN_POOL_PROXY_ADDRESS);
     })
     it("has correct pool revision", async function () {
-      expect(await poolProxy4.poolRevision()).eq(4);
+      expect(await poolProxy5.poolRevision()).eq(5);
     })
-    it("reserves list unchanged after MainPool4 upgrade", async function () {
-      expect(await poolProxy4.getReservesList()).to.deep.eq(reservesList);
+    it("reserves list unchanged after MainPool5 upgrade", async function () {
+      expect(await poolProxy5.getReservesList()).to.deep.eq(reservesList);
     })
-    it("balances unchanged after MainPool4 upgrade", async function () {
+    it("balances unchanged after MainPool5 upgrade", async function () {
       let current = await getBalances();
       let previous = balanceSnapshots[balanceSnapshots.length - 1];
       for (const userAddr of users) {
@@ -842,25 +842,25 @@ describe("MainPoolFixes", function () {
         }
       }
     })
-    it("indexes unchanged after MainPool4 upgrade", async function () {
+    it("indexes unchanged after MainPool5 upgrade", async function () {
       let previous = indexSnapshots[indexSnapshots.length - 1];
       for (const asset of ASSETS) {
-        let reserveData = await poolProxy4.getReserveData(asset.address);
+        let reserveData = await poolProxy5.getReserveData(asset.address);
         expect(reserveData.liquidityIndex).eq(
           previous.assets[asset.symbol].liquidityIndex,
-          `${asset.symbol} liquidityIndex changed after MainPool4 upgrade`
+          `${asset.symbol} liquidityIndex changed after MainPool5 upgrade`
         );
         expect(reserveData.variableBorrowIndex).eq(
           previous.assets[asset.symbol].variableBorrowIndex,
-          `${asset.symbol} variableBorrowIndex changed after MainPool4 upgrade`
+          `${asset.symbol} variableBorrowIndex changed after MainPool5 upgrade`
         );
-        expect(reserveData.currentLiquidityRate).eq(0, `${asset.symbol} liquidityRate not zero after MainPool4 upgrade`);
-        expect(reserveData.currentVariableBorrowRate).eq(0, `${asset.symbol} variableBorrowRate not zero after MainPool4 upgrade`);
+        expect(reserveData.currentLiquidityRate).eq(0, `${asset.symbol} liquidityRate not zero after MainPool5 upgrade`);
+        expect(reserveData.currentVariableBorrowRate).eq(0, `${asset.symbol} variableBorrowRate not zero after MainPool5 upgrade`);
       }
     })
-    it("setRateZero does not exist on MainPool4", async function () {
+    it("setRateZero does not exist on MainPool5", async function () {
       // poolProxy3 has MainPool3 ABI which includes setRateZero
-      // After upgrading to MainPool4, the function selector won't match anything
+      // After upgrading to MainPool5, the function selector won't match anything
       await expect(poolProxy3.connect(rateSetter).setRateZero(ASSETS[0].address)).to.be.reverted;
     })
     it("get WETH for user1", async function () {
@@ -881,11 +881,11 @@ describe("MainPoolFixes", function () {
       let aBal0 = await aWETH.balanceOf(user.address);
       let wethBal0 = await WETH.balanceOf(user.address);
       // approve and supply
-      await WETH.connect(user).approve(poolProxy4.address, MaxUint256);
-      let tx = await poolProxy4.connect(user)["supply(address,uint256,address,uint16)"](WETH.address, supplyAmount, user.address, 0);
+      await WETH.connect(user).approve(poolProxy5.address, MaxUint256);
+      let tx = await poolProxy5.connect(user)["supply(address,uint256,address,uint16)"](WETH.address, supplyAmount, user.address, 0);
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, supplyAmount);
-      await expect(tx).to.emit(poolProxy4, "Supply").withArgs(WETH.address, user.address, user.address, supplyAmount, 0);
+      await expect(tx).to.emit(poolProxy5, "Supply").withArgs(WETH.address, user.address, user.address, supplyAmount, 0);
       // verify balances (±2 from ray math rounding, not interest accrual)
       let aBal1 = await aWETH.balanceOf(user.address);
       expect(aBal1.sub(aBal0.add(supplyAmount)).abs()).lte(2);
@@ -902,9 +902,9 @@ describe("MainPoolFixes", function () {
       let vdBal0 = await vdWETH.balanceOf(user.address);
       let wethBal0 = await WETH.balanceOf(user.address);
       // borrow (interestRateMode=2 for variable)
-      let tx = await poolProxy4.connect(user)["borrow(address,uint256,uint256,uint16,address)"](WETH.address, borrowAmount, 2, 0, user.address);
+      let tx = await poolProxy5.connect(user)["borrow(address,uint256,uint256,uint16,address)"](WETH.address, borrowAmount, 2, 0, user.address);
       // verify events - borrowRate is 0 because zero IRM is set
-      await expect(tx).to.emit(poolProxy4, "Borrow").withArgs(WETH.address, user.address, user.address, borrowAmount, 2, 0, 0);
+      await expect(tx).to.emit(poolProxy5, "Borrow").withArgs(WETH.address, user.address, user.address, borrowAmount, 2, 0, 0);
       // verify balances
       let vdBal1 = await vdWETH.balanceOf(user.address);
       expect(vdBal1).eq(vdBal0.add(borrowAmount));
@@ -924,11 +924,11 @@ describe("MainPoolFixes", function () {
       let wethBal0 = await WETH.balanceOf(user.address);
       expect(wethBal0).gte(repayAmount);
       // approve and repay
-      await WETH.connect(user).approve(poolProxy4.address, MaxUint256);
-      let tx = await poolProxy4.connect(user)["repay(address,uint256,uint256,address)"](WETH.address, repayAmount, 2, user.address);
+      await WETH.connect(user).approve(poolProxy5.address, MaxUint256);
+      let tx = await poolProxy5.connect(user)["repay(address,uint256,uint256,address)"](WETH.address, repayAmount, 2, user.address);
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, repayAmount);
-      await expect(tx).to.emit(poolProxy4, "Repay").withArgs(WETH.address, user.address, user.address, repayAmount, false);
+      await expect(tx).to.emit(poolProxy5, "Repay").withArgs(WETH.address, user.address, user.address, repayAmount, false);
       // verify balances
       let vdBal1 = await vdWETH.balanceOf(user.address);
       expect(vdBal1).eq(vdBal0.sub(repayAmount));
@@ -946,10 +946,10 @@ describe("MainPoolFixes", function () {
       expect(aBal0).gte(withdrawAmount);
       let wethBal0 = await WETH.balanceOf(user.address);
       // withdraw
-      let tx = await poolProxy4.connect(user)["withdraw(address,uint256,address)"](WETH.address, withdrawAmount, user.address);
+      let tx = await poolProxy5.connect(user)["withdraw(address,uint256,address)"](WETH.address, withdrawAmount, user.address);
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(aWETH.address, user.address, withdrawAmount);
-      await expect(tx).to.emit(poolProxy4, "Withdraw").withArgs(WETH.address, user.address, user.address, withdrawAmount);
+      await expect(tx).to.emit(poolProxy5, "Withdraw").withArgs(WETH.address, user.address, user.address, withdrawAmount);
       // verify balances (±2 from ray math rounding, not interest accrual)
       let aBal1 = await aWETH.balanceOf(user.address);
       expect(aBal0.sub(aBal1).sub(withdrawAmount).abs()).lte(2);
@@ -960,11 +960,11 @@ describe("MainPoolFixes", function () {
       let user = user1;
       let WETH = ASSETS[0].contract;
       // disable WETH as collateral (safe since user1 has no outstanding borrows after repay)
-      let tx1 = await poolProxy4.connect(user)["setUserUseReserveAsCollateral(address,bool)"](WETH.address, false);
-      await expect(tx1).to.emit(poolProxy4, "ReserveUsedAsCollateralDisabled").withArgs(WETH.address, user.address);
+      let tx1 = await poolProxy5.connect(user)["setUserUseReserveAsCollateral(address,bool)"](WETH.address, false);
+      await expect(tx1).to.emit(poolProxy5, "ReserveUsedAsCollateralDisabled").withArgs(WETH.address, user.address);
       // re-enable WETH as collateral
-      let tx2 = await poolProxy4.connect(user)["setUserUseReserveAsCollateral(address,bool)"](WETH.address, true);
-      await expect(tx2).to.emit(poolProxy4, "ReserveUsedAsCollateralEnabled").withArgs(WETH.address, user.address);
+      let tx2 = await poolProxy5.connect(user)["setUserUseReserveAsCollateral(address,bool)"](WETH.address, true);
+      await expect(tx2).to.emit(poolProxy5, "ReserveUsedAsCollateralEnabled").withArgs(WETH.address, user.address);
     })
     it("users can deposit WETH via Pool signature", async function () {
       let user = user1;
@@ -973,8 +973,8 @@ describe("MainPoolFixes", function () {
       let depositAmount = parseUnits("0.5");
       expect(await WETH.balanceOf(user.address)).gte(depositAmount);
       let aBal0 = await aWETH.balanceOf(user.address);
-      let tx = await poolProxy4.connect(user).deposit(WETH.address, depositAmount, user.address, 0);
-      await expect(tx).to.emit(poolProxy4, "Supply").withArgs(WETH.address, user.address, user.address, depositAmount, 0);
+      let tx = await poolProxy5.connect(user).deposit(WETH.address, depositAmount, user.address, 0);
+      await expect(tx).to.emit(poolProxy5, "Supply").withArgs(WETH.address, user.address, user.address, depositAmount, 0);
       let aBal1 = await aWETH.balanceOf(user.address);
       expect(aBal1.sub(aBal0.add(depositAmount)).abs()).lte(2);
     })
@@ -983,14 +983,14 @@ describe("MainPoolFixes", function () {
       // Should revert with Aave error '45' (HEALTH_FACTOR_NOT_BELOW_THRESHOLD)
       // NOT with "Liquidations disabled"
       await expect(
-        poolProxy4.connect(user1)["liquidationCall(address,address,address,uint256,bool)"](ASSETS[0].address, ASSETS[1].address, user2.address, 1, false)
+        poolProxy5.connect(user1)["liquidationCall(address,address,address,uint256,bool)"](ASSETS[0].address, ASSETS[1].address, user2.address, 1, false)
       ).to.be.revertedWith('45');
     })
     it("flash loans are not disabled", async function () {
       // flashLoanSimple has no bytes32 overload in L2Pool, so no disambiguation needed
       // EOA receiver will revert (can't implement callback) but NOT with "Flash loans disabled"
       await expect(
-        poolProxy4.connect(user1).flashLoanSimple(user2.address, ASSETS[0].address, 1, "0x", 0)
+        poolProxy5.connect(user1).flashLoanSimple(user2.address, ASSETS[0].address, 1, "0x", 0)
       ).to.not.be.revertedWith("Flash loans disabled");
     })
     // ---- L2Pool bytes32 signature tests (calldata-optimized versions) ----
@@ -1001,7 +1001,7 @@ describe("MainPoolFixes", function () {
       let aWETH = asset.aContract;
       let supplyAmount = parseUnits("1");
       // get reserve ID for encoding
-      let reserveData = await poolProxy4.getReserveData(WETH.address);
+      let reserveData = await poolProxy5.getReserveData(WETH.address);
       let assetId = reserveData.id;
       let args = encodeSupplyArgs(assetId, supplyAmount, 0);
       // check pre-conditions
@@ -1009,10 +1009,10 @@ describe("MainPoolFixes", function () {
       let aBal0 = await aWETH.balanceOf(user.address);
       let wethBal0 = await WETH.balanceOf(user.address);
       // supply via bytes32 (uses msg.sender as onBehalfOf)
-      let tx = await poolProxy4.connect(user)["supply(bytes32)"](args);
+      let tx = await poolProxy5.connect(user)["supply(bytes32)"](args);
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, supplyAmount);
-      await expect(tx).to.emit(poolProxy4, "Supply").withArgs(WETH.address, user.address, user.address, supplyAmount, 0);
+      await expect(tx).to.emit(poolProxy5, "Supply").withArgs(WETH.address, user.address, user.address, supplyAmount, 0);
       // verify balances (±2 from ray math rounding, not interest accrual)
       let aBal1 = await aWETH.balanceOf(user.address);
       expect(aBal1.sub(aBal0.add(supplyAmount)).abs()).lte(2);
@@ -1026,16 +1026,16 @@ describe("MainPoolFixes", function () {
       let vdWETH = asset.vdContract;
       let borrowAmount = parseUnits("0.1"); // 0.1 WETH
       // get reserve ID for encoding
-      let reserveData = await poolProxy4.getReserveData(WETH.address);
+      let reserveData = await poolProxy5.getReserveData(WETH.address);
       let assetId = reserveData.id;
       let args = encodeBorrowArgs(assetId, borrowAmount, 2, 0);
       // check pre-conditions
       let vdBal0 = await vdWETH.balanceOf(user.address);
       let wethBal0 = await WETH.balanceOf(user.address);
       // borrow via bytes32 (uses msg.sender as onBehalfOf)
-      let tx = await poolProxy4.connect(user)["borrow(bytes32)"](args);
+      let tx = await poolProxy5.connect(user)["borrow(bytes32)"](args);
       // verify events
-      await expect(tx).to.emit(poolProxy4, "Borrow").withArgs(WETH.address, user.address, user.address, borrowAmount, 2, 0, 0);
+      await expect(tx).to.emit(poolProxy5, "Borrow").withArgs(WETH.address, user.address, user.address, borrowAmount, 2, 0, 0);
       // verify balances
       let vdBal1 = await vdWETH.balanceOf(user.address);
       expect(vdBal1).eq(vdBal0.add(borrowAmount));
@@ -1050,7 +1050,7 @@ describe("MainPoolFixes", function () {
       let vdWETH = asset.vdContract;
       let repayAmount = parseUnits("0.1"); // 0.1 WETH
       // get reserve ID for encoding
-      let reserveData = await poolProxy4.getReserveData(WETH.address);
+      let reserveData = await poolProxy5.getReserveData(WETH.address);
       let assetId = reserveData.id;
       let args = encodeRepayArgs(assetId, repayAmount, 2);
       // check pre-conditions
@@ -1059,10 +1059,10 @@ describe("MainPoolFixes", function () {
       let wethBal0 = await WETH.balanceOf(user.address);
       expect(wethBal0).gte(repayAmount);
       // repay via bytes32 (uses msg.sender as onBehalfOf)
-      let tx = await poolProxy4.connect(user)["repay(bytes32)"](args);
+      let tx = await poolProxy5.connect(user)["repay(bytes32)"](args);
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(user.address, aWETH.address, repayAmount);
-      await expect(tx).to.emit(poolProxy4, "Repay").withArgs(WETH.address, user.address, user.address, repayAmount, false);
+      await expect(tx).to.emit(poolProxy5, "Repay").withArgs(WETH.address, user.address, user.address, repayAmount, false);
       // verify balances
       let vdBal1 = await vdWETH.balanceOf(user.address);
       expect(vdBal1).eq(vdBal0.sub(repayAmount));
@@ -1076,7 +1076,7 @@ describe("MainPoolFixes", function () {
       let aWETH = asset.aContract;
       let withdrawAmount = parseUnits("1");
       // get reserve ID for encoding
-      let reserveData = await poolProxy4.getReserveData(WETH.address);
+      let reserveData = await poolProxy5.getReserveData(WETH.address);
       let assetId = reserveData.id;
       let args = encodeWithdrawArgs(assetId, withdrawAmount);
       // check pre-conditions
@@ -1084,28 +1084,28 @@ describe("MainPoolFixes", function () {
       expect(aBal0).gte(withdrawAmount);
       let wethBal0 = await WETH.balanceOf(user.address);
       // withdraw via bytes32 (uses msg.sender as to)
-      let tx = await poolProxy4.connect(user)["withdraw(bytes32)"](args);
+      let tx = await poolProxy5.connect(user)["withdraw(bytes32)"](args);
       // verify events
       await expect(tx).to.emit(WETH, "Transfer").withArgs(aWETH.address, user.address, withdrawAmount);
-      await expect(tx).to.emit(poolProxy4, "Withdraw").withArgs(WETH.address, user.address, user.address, withdrawAmount);
+      await expect(tx).to.emit(poolProxy5, "Withdraw").withArgs(WETH.address, user.address, user.address, withdrawAmount);
       // verify balances (±2 from ray math rounding, not interest accrual)
       let aBal1 = await aWETH.balanceOf(user.address);
       expect(aBal0.sub(aBal1).sub(withdrawAmount).abs()).lte(2);
       let wethBal1 = await WETH.balanceOf(user.address);
       expect(wethBal1).eq(wethBal0.add(withdrawAmount));
     })
-    it("interest rates are still zero after MainPool4 operations", async function () {
+    it("interest rates are still zero after MainPool5 operations", async function () {
       for (const asset of ASSETS) {
-        let reserveData = await poolProxy4.getReserveData(asset.address);
+        let reserveData = await poolProxy5.getReserveData(asset.address);
         expect(reserveData.currentLiquidityRate).eq(0);
         expect(reserveData.currentVariableBorrowRate).eq(0);
       }
     })
-    it("get balances after MainPool4 operations", async function () {
+    it("get balances after MainPool5 operations", async function () {
       balanceSnapshots.push(await getBalances());
     })
-    it("get indexes after MainPool4 operations", async function () {
-      indexSnapshots.push(await getIndexes(poolProxy4, "after MainPool4 operations"));
+    it("get indexes after MainPool5 operations", async function () {
+      indexSnapshots.push(await getIndexes(poolProxy5, "after MainPool5 operations"));
     })
   })
   describe("outputs", function () {
