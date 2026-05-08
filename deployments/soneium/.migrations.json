@@ -12,5 +12,8 @@
   "TokenImplementations:soneium:aave-v3-core@1.19.4": 1736315640,
   "ReservesInit:soneium:aave-v3-core@1.19.4": 1736315692,
   "PeripheryInit:soneium:aave-v3-periphery@2.5.2": 1736315692,
-  "MainPool2Upgrade": 1774504629
+  "MainPool2Upgrade": 1774504629,
+  "MainPool3Upgrade": 1774507670,
+  "MainPool4Upgrade": 1776153447,
+  "MainPool5Upgrade": 1778052045
 }
