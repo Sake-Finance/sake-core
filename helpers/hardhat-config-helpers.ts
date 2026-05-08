@@ -101,12 +101,7 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eBaseNetwork.base]: `https://base-mainnet.g.alchemy.com/v2/${getAlchemyKey(
     eBaseNetwork.base
   )}`,
-  // [eSoneiumNetwork.minato]: `https://soneium-minato.rpc.scs.startale.com?apikey=${getAlchemyKey(
-  //   eSoneiumNetwork.minato
-  // )}`,
-  [eSoneiumNetwork.soneium]: `https://soneium.rpc.scs.startale.com?apikey=${getAlchemyKey(
-    eSoneiumNetwork.soneium
-  )}`,
+  [eSoneiumNetwork.soneium]: "https://rpc.soneium.org/",
 };
 
 export const LIVE_NETWORKS: iParamsPerNetwork<boolean> = { //TODO
